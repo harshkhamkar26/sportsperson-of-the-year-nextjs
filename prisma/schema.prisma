@@ -1,0 +1,56 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  role         String       @default("COACH") // SUPER_ADMIN or COACH
+  pointEntries PointEntry[]
+}
+
+model Student {
+  id         String       @id @default(uuid())
+  rollNumber String       @unique
+  name       String
+  className  String
+  house      String?
+  photoUrl   String?
+  pointEntries PointEntry[]
+
+  @@index([className])
+}
+
+model Event {
+  id           String       @id @default(uuid())
+  name         String
+  date         DateTime
+  pointEntries PointEntry[]
+
+  @@unique([name, date])
+}
+
+model PointEntry {
+  id          String   @id @default(uuid())
+  studentId   String
+  eventId     String
+  points      Float
+  position    Int?
+  enteredById String
+
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  enteredBy   Admin    @relation(fields: [enteredById], references: [id])
+
+  @@unique([studentId, eventId])
+  @@index([studentId])
+  @@index([eventId])
+}
