@@ -15,11 +15,11 @@ export default function Layout({ children, title = "Universal AI University Athl
         {/* TopNavBar */}
         <header className="bg-background/90 dark:bg-background/90 backdrop-blur-md fixed top-0 w-full z-50 border-b border-white/10 shadow-sm transition-all duration-300">
         <div className="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-          <Link href="/" className="flex items-center gap-4 cursor-pointer scale-95 active:scale-90 transition-transform">
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
-              <img src="/images/sports-club-logo.png" alt="UAIU Sports Club" className="h-10 w-auto object-contain" />
-              <div className="h-6 w-px bg-white/20 mx-1"></div>
-              <img alt="Universal AI University" className="h-8 w-auto object-contain" src="/images/uaiu-logo.png" />
+          <Link href="/" className="flex items-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all">
+            <div className="flex items-center gap-3">
+              <img alt="Universal AI University" className="h-10 w-auto object-contain drop-shadow-md" src="/images/uaiu-logo.png" />
+              <div className="h-8 w-px bg-white/20 hidden sm:block"></div>
+              <span className="font-headline-md text-on-surface font-bold text-lg hidden sm:block tracking-tight">Athletics</span>
             </div>
           </Link>
             
@@ -61,7 +61,7 @@ export default function Layout({ children, title = "Universal AI University Athl
         <footer className="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/20 full-width bottom">
           <div className="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-margin-desktop max-w-container-max mx-auto gap-base">
             <div className="flex items-center gap-3 mb-4 md:mb-0">
-              <img src="/images/sports-club-logo.png" alt="UAIU Logo" className="w-8 h-8 object-contain opacity-70 grayscale" />
+              <img src="/images/uaiu-logo.png" alt="UAIU Logo" className="h-8 w-auto object-contain opacity-70 grayscale" />
               <span className="font-label-caps text-label-caps text-on-surface-variant">© 2024 Universal AI University Athletics. All Rights Reserved.</span>
             </div>
             <div className="flex flex-wrap gap-6 justify-center">
