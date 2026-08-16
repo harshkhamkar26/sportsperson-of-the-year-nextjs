@@ -113,19 +113,20 @@ export default function Home({ top3 }: { top3: any[] }) {
                     <div className="w-12 h-12 rounded-full border-2 border-rank-silver flex items-center justify-center text-rank-silver font-data-tabular text-data-tabular font-bold mb-3 shadow-[0_0_10px_rgba(192,192,192,0.3)]">2</div>
                     <h4 className="font-headline-md text-headline-md text-on-surface mb-1">{rank2.name}</h4>
                     <p className="font-data-tabular text-data-tabular text-rank-silver mb-2"><AnimatedCounter value={rank2.totalPoints} /> PTS</p>
-                  <div className="flex gap-2">
-                    {Array.from({ length: rank2.medals?.gold || 0 }).map((_, i) => (
-                      <span key={`g-${i}`} className="material-symbols-outlined text-rank-gold text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                    ))}
-                    {Array.from({ length: rank2.medals?.silver || 0 }).map((_, i) => (
-                      <span key={`s-${i}`} className="material-symbols-outlined text-rank-silver text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                    ))}
-                    {Array.from({ length: rank2.medals?.bronze || 0 }).map((_, i) => (
-                      <span key={`b-${i}`} className="material-symbols-outlined text-rank-bronze text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                    ))}
+                    <div className="flex gap-2">
+                      {Array.from({ length: rank2.medals?.gold || 0 }).map((_, i) => (
+                        <span key={`g-${i}`} className="material-symbols-outlined text-rank-gold text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                      ))}
+                      {Array.from({ length: rank2.medals?.silver || 0 }).map((_, i) => (
+                        <span key={`s-${i}`} className="material-symbols-outlined text-rank-silver text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                      ))}
+                      {Array.from({ length: rank2.medals?.bronze || 0 }).map((_, i) => (
+                        <span key={`b-${i}`} className="material-symbols-outlined text-rank-bronze text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </div>
+                </Tilt>
+              </motion.div>
             ) : <div className="order-2 md:order-1"></div>}
             
             {/* Rank #1 */}

@@ -140,6 +140,7 @@ export default function TeamsDirectory() {
                       <span className={`font-data-tabular text-data-tabular ${team.pointsClass}`}>{team.points}</span>
                     </div>
                   </div>
+                  </div>
                 </div>
               </Link>
             </motion.div>

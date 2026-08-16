@@ -42,6 +42,18 @@ export default function Layout({ children, title = "Universal AI University Athl
             </div>
             
             <div className="flex items-center gap-4 text-primary dark:text-primary-fixed-dim">
+              {/* Live Broadcast Button */}
+              <Link href="/live" className="hidden lg:flex items-center gap-2 bg-[#D32F2F] hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-colors border border-red-500/50">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                Live Broadcast
+              </Link>
+
+              {/* TV Mode Button */}
+              <Link href="/tv" className="hidden lg:flex items-center gap-2 bg-surface-container hover:bg-surface-container-high px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-colors border border-outline-variant/30 text-on-surface">
+                <span className="material-symbols-outlined text-[16px]">tv</span>
+                TV Mode
+              </Link>
+
               <Link href="/search" className="material-symbols-outlined hover:bg-surface-container-high/50 transition-all duration-200 p-2 rounded-full cursor-pointer scale-98 active:opacity-80">
                 search
               </Link>
@@ -58,18 +70,25 @@ export default function Layout({ children, title = "Universal AI University Athl
         </main>
         
         {/* Footer */}
-        <footer className="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/20 full-width bottom">
-          <div className="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-margin-desktop max-w-container-max mx-auto gap-base">
-            <div className="flex items-center gap-3 mb-4 md:mb-0">
-              <img src="/images/uaiu-logo.png" alt="UAIU Logo" className="h-8 w-auto object-contain opacity-70 grayscale" />
-              <span className="font-label-caps text-label-caps text-on-surface-variant">© 2024 Universal AI University Athletics. All Rights Reserved.</span>
+        <footer className="bg-surface-container-lowest dark:bg-[#0F1219] border-t border-outline-variant/20 full-width bottom mt-12">
+          <div className="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-8 max-w-container-max mx-auto gap-base">
+            
+            <div className="flex flex-col">
+              <span className="font-bold text-white mb-1">Universal AI University — Sports Club OS</span>
+              <span className="text-sm text-white/50">Empowering Student Athletes & Promoting Equal Athletic Excellence</span>
             </div>
-            <div className="flex flex-wrap gap-6 justify-center">
-              <Link href="/privacy" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Privacy Policy</Link>
-              <Link href="/terms" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Terms of Service</Link>
-              <Link href="/directory" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Campus Directory</Link>
-              <a href="mailto:admin@uaiu.edu" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Contact Coach</a>
+
+            <div className="flex items-center gap-6">
+              <Link href="/live" className="text-white/80 hover:text-white font-bold text-sm transition-colors">
+                Live Broadcast
+              </Link>
+              <span className="text-white/20">•</span>
+              <Link href="/admin/login" className="flex items-center gap-2 bg-transparent border border-white/20 hover:border-white/40 text-white/80 hover:text-white px-4 py-2 rounded-full font-bold text-sm transition-colors">
+                <span className="material-symbols-outlined text-sm">security</span>
+                Admin Portal
+              </Link>
             </div>
+
           </div>
         </footer>
       </div>

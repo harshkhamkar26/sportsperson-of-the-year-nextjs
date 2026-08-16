@@ -231,7 +231,7 @@ export default function AthleteProfile({ athlete }: { athlete: any }) {
                   </tr>
                 </thead>
                 <tbody className="font-data-tabular text-data-tabular">
-                  {athlete.history.map((item, idx) => (
+                  {athlete.history.map((item: any, idx: number) => (
                     <tr key={idx} className="border-b border-white/10 hover:bg-surface-container-highest/20 transition-colors">
                       <td className="py-3 px-6 text-on-surface">{item.sport}</td>
                       <td className="py-3 px-6 text-on-surface-variant">{item.event}</td>
