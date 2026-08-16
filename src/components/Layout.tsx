@@ -19,7 +19,7 @@ export default function Layout({ children, title = "Universal AI University Athl
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
               <img src="/images/sports-club-logo.png" alt="UAIU Sports Club" className="h-10 w-auto object-contain" />
               <div className="h-6 w-px bg-white/20 mx-1"></div>
-              <img alt="Universal AI University" className="h-8 w-auto object-contain" src="https://www.universalai.in/wp-content/uploads/2023/04/Universal-AI-University-Logo.png" />
+              <img alt="Universal AI University" className="h-8 w-auto object-contain" src="/images/uaiu-logo.png" />
             </div>
           </Link>
             
@@ -65,10 +65,10 @@ export default function Layout({ children, title = "Universal AI University Athl
               <span className="font-label-caps text-label-caps text-on-surface-variant">© 2024 Universal AI University Athletics. All Rights Reserved.</span>
             </div>
             <div className="flex flex-wrap gap-6 justify-center">
-              <Link href="#" className="font-body-md text-body-md text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors opacity-100 hover:opacity-80">Privacy Policy</Link>
-              <Link href="#" className="font-body-md text-body-md text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors opacity-100 hover:opacity-80">Terms of Service</Link>
-              <Link href="#" className="font-body-md text-body-md text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors opacity-100 hover:opacity-80">Campus Directory</Link>
-              <Link href="#" className="font-body-md text-body-md text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors opacity-100 hover:opacity-80">Contact Coach</Link>
+              <Link href="/privacy" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Privacy Policy</Link>
+              <Link href="/terms" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Terms of Service</Link>
+              <Link href="/directory" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Campus Directory</Link>
+              <a href="mailto:admin@uaiu.edu" className="text-on-surface-variant hover:text-primary transition-colors hover:underline">Contact Coach</a>
             </div>
           </div>
         </footer>

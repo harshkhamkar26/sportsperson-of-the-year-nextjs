@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
+import { getRankings } from "@/lib/rankings";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
@@ -27,29 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (house) where.house = house;
     if (className) where.className = className;
 
-    const students = await prisma.student.findMany({
-      where,
-      include: {
-        pointEntries: true,
-      },
-    });
-
-    const leaderboard = students.map((s) => {
-      const totalPoints = s.pointEntries.reduce((sum, entry) => sum + entry.points, 0);
-      return {
-        ...s,
-        totalPoints,
-        eventsCount: s.pointEntries.length,
-      };
-    });
-
-    // Sort descending by points
-    leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
-
-    // Apply ranking
-    leaderboard.forEach((s, index) => {
-      (s as any).rank = index + 1;
-    });
+    // Apply ranking is now done inside getRankings
+    const leaderboard = await getRankings(where);
 
     // Paginate
     const paginatedLeaderboard = leaderboard.slice(skip, skip + limit);

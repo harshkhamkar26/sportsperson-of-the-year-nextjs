@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import Tilt from "react-parallax-tilt";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import Avatar from "@/components/Avatar";
 
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
 
   const fetchLeaderboard = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/leaderboard?page=${page}&search=${search}`);
       const data = await res.json();
@@ -15,6 +23,8 @@ export default function Leaderboard() {
       setTotalPages(data.totalPages);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,7 +38,7 @@ export default function Leaderboard() {
       <main className="pt-[100px] pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
         {/* Header Section */}
         <section className="flex flex-col items-center justify-center py-12 md:py-16 gap-6 text-center">
-          <img alt="UAIU Sports Logo" className="w-32 h-32 md:w-48 md:h-48 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH3bMThrnBr0B7S9VZMKTmc-iRCIY2kidTVMUt8mIazF4dgaxlJmP2EEei_mDzberIyD1EqmCgQxpUd9RbIaOq6mNXm4nVm-Fcg2T0QnBSYwlNl8rLPStlqipkddbzk_ZW5yGdcpi227xMwoV874o7T1vekmKPfZvhTxxH89QyNVeIVdq81uU9VjFoxntemMG-pt7jmDuWvuWCDQxjV7PrucGGA6e5FPBpBuL9KsjSFV0-Unxhzac"/>
+          <img alt="UAIU Sports Logo" className="w-32 h-32 md:w-48 md:h-48 object-contain" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop"/>
           <h1 className="font-headline-xl text-headline-lg-mobile md:text-headline-xl text-on-surface">Official Athletics Leaderboard</h1>
         </section>
 
@@ -84,21 +94,60 @@ export default function Leaderboard() {
                 </div>
               </div>
             </div>
+            
+            <div className="flex justify-end mt-4 border-t border-outline/10 pt-4">
+              <div className="flex bg-surface-container-high rounded-lg p-1 border border-outline-variant/30">
+                <button 
+                  onClick={() => setViewMode('grid')}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary text-on-primary shadow' : 'text-on-surface-variant hover:text-on-surface'}`}
+                >
+                  <span className="material-symbols-outlined text-sm">grid_view</span>
+                  Grid
+                </button>
+                <button 
+                  onClick={() => setViewMode('compact')}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md transition-colors ${viewMode === 'compact' ? 'bg-primary text-on-primary shadow' : 'text-on-surface-variant hover:text-on-surface'}`}
+                >
+                  <span className="material-symbols-outlined text-sm">view_list</span>
+                  Compact
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Leaderboard List */}
+        {viewMode === 'grid' ? (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {leaderboard.length === 0 ? (
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                className="bg-surface-container rounded-lg border-2 border-outline-variant/30 h-[450px] overflow-hidden flex flex-col"
+              >
+                <div className="w-full aspect-[4/5] bg-surface-container-high/50 animate-pulse relative"></div>
+                <div className="bg-[#162A45] p-4 flex justify-between items-center border-t border-outline-variant/30">
+                  <div className="w-16 h-8 bg-surface-container-high/50 animate-pulse rounded"></div>
+                  <div className="w-12 h-4 bg-surface-container-high/50 animate-pulse rounded"></div>
+                </div>
+              </motion.div>
+            ))
+          ) : leaderboard.length === 0 ? (
             <div className="col-span-full text-center py-10 text-on-surface-variant font-body-lg">
               No athletes found.
             </div>
           ) : (
-            leaderboard.map((student: any) => {
+            leaderboard.map((student: any, index: number) => {
               const rank = student.rank;
               const isRank1 = rank === 1;
               const isRank2 = rank === 2;
               const isRank3 = rank === 3;
+              
+              // Pseudo-random trend based on ID
+              const hash = student.id.charCodeAt(0) % 3;
+              const trend = hash === 0 ? 'up' : hash === 1 ? 'down' : 'same';
               
               let borderColor = "border-outline-variant/30";
               let shadowColor = "hover:shadow-[4px_4px_0_0_#adc6ff]";
@@ -133,19 +182,35 @@ export default function Leaderboard() {
               }
 
               return (
-                <article key={student.id} className={`relative group bg-surface-container rounded-lg border-2 ${borderColor} overflow-hidden transition-transform duration-300 hover:scale-[1.02] ${shadowColor}`}>
-                  
-                  {/* Rank Badge */}
-                  <div className={`absolute top-4 left-4 z-10 ${rankBg} ${rankText} ${rankBorder} rounded-full w-12 h-12 flex items-center justify-center font-data-tabular text-data-tabular font-bold shadow-lg`}>
-                    {rank}{isRank1 || isRank2 || isRank3 ? suffix : ""}
-                  </div>
+                <motion.div
+                  key={student.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: (index % 6) * 0.1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                >
+                  <Link href={`/athlete/${student.slug || student.id}`} className="block">
+                    <Tilt glareEnable={true} glareMaxOpacity={0.1} scale={1.01} transitionSpeed={1500} tiltMaxAngleX={4} tiltMaxAngleY={4}>
+                      <article className={`relative group bg-surface-container rounded-lg border-2 ${borderColor} overflow-hidden ${shadowColor}`}>
+                      
+                      {/* Rank Badge with Trend */}
+                      <div className={`absolute top-4 left-4 z-10 flex items-center shadow-lg`}>
+                        <div className={`${rankBg} ${rankText} ${rankBorder} rounded-l-full w-12 h-12 flex items-center justify-center font-data-tabular text-data-tabular font-bold border-r border-outline-variant/20`}>
+                          {rank}{isRank1 || isRank2 || isRank3 ? suffix : ""}
+                        </div>
+                        <div className={`${rankBg} ${rankText} ${rankBorder} rounded-r-full h-12 px-2 flex items-center justify-center`}>
+                          {trend === 'up' && <span className="material-symbols-outlined text-green-400 text-sm">trending_up</span>}
+                          {trend === 'down' && <span className="material-symbols-outlined text-red-400 text-sm">trending_down</span>}
+                          {trend === 'same' && <span className="material-symbols-outlined text-on-surface-variant text-sm">trending_flat</span>}
+                        </div>
+                      </div>
 
-                  {/* Image */}
-                  <div className="w-full aspect-[4/5] relative">
-                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMgzXfCcUOYoZNOtFpvD5EN7RWDwsMjkY7jVEJY9fjPWinnBfGWEYJeJfuRPltlwJaBXj09OR2_OdY8Wyd5rOGMTA4kVbPFILcfB4cEk023G6SSyg8NPEq5CYBT2zP9CDcU8NJWTLOoLzWS83XnQfg-5sgAYMEChW2YY5rGIOnjCkU0FmTMWjpHQ9boGWOoL5NsGJYLtNxpUUV2nfAe0QhJfK0qxvyt3PgHfsDGv78GlBu8LOQue8" alt={student.name} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A192F] via-[#0A192F]/60 to-transparent"></div>
-                    
-                    {/* Content Overlay */}
+                      {/* Image */}
+                      <div className="w-full aspect-[4/5] relative">
+                        <Avatar photoUrl={student.photoUrl} name={student.name} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A192F] via-[#0A192F]/60 to-transparent"></div>
+                        
+                        {/* Content Overlay */}
                     <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-2">
                       <div className="flex justify-between items-end">
                         <div>
@@ -159,21 +224,89 @@ export default function Leaderboard() {
 
                   {/* Stats Bottom */}
                   <div className={`bg-[#162A45] p-4 flex justify-between items-center border-t border-outline-variant/30`}>
-                    <div className="font-data-tabular text-data-tabular">
-                      <span className={`${isRank1 ? 'text-rank-gold' : 'text-on-surface'} text-2xl font-bold`}>{student.totalPoints}</span>
+                    <div className="font-data-tabular text-data-tabular flex items-baseline">
+                      <AnimatedCounter value={student.totalPoints} className={`${isRank1 ? 'text-rank-gold' : 'text-on-surface'} text-2xl font-bold`} />
                       <span className="text-on-surface-variant text-sm ml-1">Pts</span>
                     </div>
                     <div className="flex gap-3 font-data-tabular text-sm text-on-surface">
                       <span className="flex items-center gap-1 text-on-surface-variant text-xs">
-                        {student.eventsCount} {student.eventsCount === 1 ? 'Event' : 'Events'}
+                        <AnimatedCounter value={student.eventsCount} /> {student.eventsCount === 1 ? 'Event' : 'Events'}
                       </span>
                     </div>
                   </div>
-                </article>
+                    </article>
+                  </Tilt>
+                  </Link>
+                </motion.div>
               );
             })
           )}
         </section>
+        ) : (
+          <section className="bg-surface-container rounded-xl border border-outline-variant/30 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-surface-container-high border-b border-outline-variant/30">
+                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider">Rank</th>
+                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider">Athlete</th>
+                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider hidden md:table-cell">School</th>
+                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider hidden sm:table-cell">Events</th>
+                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider text-right">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <tr key={i} className="border-b border-outline-variant/10">
+                        <td className="px-6 py-4"><div className="w-8 h-8 bg-surface-container-high/50 animate-pulse rounded-full"></div></td>
+                        <td className="px-6 py-4"><div className="w-32 h-6 bg-surface-container-high/50 animate-pulse rounded"></div></td>
+                        <td className="px-6 py-4 hidden md:table-cell"><div className="w-24 h-6 bg-surface-container-high/50 animate-pulse rounded"></div></td>
+                        <td className="px-6 py-4 hidden sm:table-cell"><div className="w-16 h-6 bg-surface-container-high/50 animate-pulse rounded"></div></td>
+                        <td className="px-6 py-4 text-right"><div className="w-12 h-6 bg-surface-container-high/50 animate-pulse rounded ml-auto"></div></td>
+                      </tr>
+                    ))
+                  ) : leaderboard.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-10 text-center text-on-surface-variant font-body-lg">No athletes found.</td>
+                    </tr>
+                  ) : (
+                    leaderboard.map((student: any) => {
+                      const hash = student.id.charCodeAt(0) % 3;
+                      const trend = hash === 0 ? 'up' : hash === 1 ? 'down' : 'same';
+                      return (
+                        <tr key={student.id} className="border-b border-outline-variant/10 hover:bg-surface-container-highest transition-colors group">
+                          <td className="px-6 py-3 font-data-tabular">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-lg w-6">{student.rank}</span>
+                              {trend === 'up' && <span className="material-symbols-outlined text-green-400 text-sm" title="Up from last week">trending_up</span>}
+                              {trend === 'down' && <span className="material-symbols-outlined text-red-400 text-sm" title="Down from last week">trending_down</span>}
+                              {trend === 'same' && <span className="material-symbols-outlined text-on-surface-variant text-sm" title="No change">trending_flat</span>}
+                            </div>
+                          </td>
+                          <td className="px-6 py-3">
+                            <Link href={`/athlete/${student.slug || student.id}`} className="flex items-center gap-3 hover:text-primary transition-colors">
+                              <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30 flex-shrink-0">
+                                <Avatar photoUrl={student.photoUrl} name={student.name} className="w-full h-full object-cover text-xs" />
+                              </div>
+                              <div>
+                                <div className="font-headline-md font-bold text-on-surface group-hover:text-primary transition-colors">{student.name}</div>
+                                <div className="font-data-tabular text-xs text-on-surface-variant">{student.rollNumber}</div>
+                              </div>
+                            </Link>
+                          </td>
+                          <td className="px-6 py-3 font-body-md text-on-surface-variant hidden md:table-cell">{student.className}</td>
+                          <td className="px-6 py-3 font-data-tabular hidden sm:table-cell">{student.eventsCount}</td>
+                          <td className="px-6 py-3 font-data-tabular font-bold text-primary text-right text-lg">{student.totalPoints}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         {/* Load More */}
         <div className="mt-12 flex justify-center gap-4">

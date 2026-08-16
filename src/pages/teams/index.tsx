@@ -1,6 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
 import Layout from '../../components/Layout';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 export default function TeamsDirectory() {
   const teams = [
@@ -9,7 +11,7 @@ export default function TeamsDirectory() {
       name: 'Engineering Eagles',
       sport: 'Robotics',
       icon: 'precision_manufacturing',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB7Dk2VV8nVmdQ9Tqd761CJblGQ7aNC2vtndz31eOzNf3qAbR9-42sLZwVWHz-VssCZ8PfF8r-DdQyZ4yK8-u3VqnwJsSgLm2Z7Qyt4EB6Y79uTDefx_LZrpOwne9UeaBMQS5rQW-c8CReWQ0h4jXPe8q6zFdz72dJlhg6TX1FdxXLAhMm8n6cKEzpGv0f0tuaxn9JgiPR-1al5SzbxM5FnH8xOJtCqW6DLeJAAZpawEfzOmttn1Bo',
+      image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=800&auto=format&fit=crop',
       members: 24,
       points: '12,450',
       rank: 1,
@@ -21,7 +23,7 @@ export default function TeamsDirectory() {
       name: 'Data Dragons',
       sport: 'Data Science',
       icon: 'analytics',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCtQyta0S_ANh4LMq2d86G8AENsUhetCdmbltzxm4yJikmTx8bkPvX_3zyi8DYBBY1VfEmw377dv0VQvzkYi4ccsGgT7iUYUPbG8qjuXrxDJsyUE8mXZs1w72DCfdHXlGWoU9s0WCVSJpHKEBTip3QN4Q73h6_RRfn6FLhQBlf0BArz_mIuA35YHbCD8jpJdYa-uWIaZRD8oqqLRBYBLHtT0l8dlNgPFf-MElKT6YNuZ0pfmyda0nE',
+      image: 'https://images.unsplash.com/photo-1526566762798-8fac9c07aa7c?q=80&w=800&auto=format&fit=crop',
       members: 18,
       points: '11,200',
       rank: 2,
@@ -33,7 +35,7 @@ export default function TeamsDirectory() {
       name: 'Cyber Spartans',
       sport: 'Esports',
       icon: 'sports_esports',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0Sd7PpuifgNlb1U2h9Of0XnoGfLTH3VkTiy7ahVJ_xLulVYeMXut2EdflXa_0jwC6HJItw75VJkspZ9z1EqFjd7QYh50QrVvUGVG1JwmA2HzZv1FI-Amd8WE7A3-MwU3waA2qVhYA8NhJQroyfP7os4Frd5WY470yCRpFj0BFOxXTYVF1VAQocKxpMwV1KswfJqaW0fwsFpDr4vGDTLYARHzYsTxEdItO_pKgcmR_e52Ymp-hPBc',
+      image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop',
       members: 12,
       points: '10,850',
       rank: 3,
@@ -45,7 +47,7 @@ export default function TeamsDirectory() {
       name: 'Business Bulls',
       sport: 'Finance Tech',
       icon: 'trending_up',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBTAAH15-vMQZk3FQN81C3o6dd8gEbQmOHtG-vfS0TgN6ZAX4heyAIiNQnCUZ6BnDaE177XZX3XS05D6aIRG5P0TigbgM_CvuygSWL_0HHkUI3qou_Tqr4ImWi64_TjAl7xIma_lzWdqa0xb64d6pTcAFSzeZdC3cUM266q9TsAcckr06nyqeaYGfcnqTAWn4st-OnePYpMO4J8a3-VA9R2zoUGthQcvYkyg7aW6iMLw5kIydNMoUw',
+      image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=800&auto=format&fit=crop',
       members: 32,
       points: '9,420',
       rank: 4,
@@ -98,21 +100,28 @@ export default function TeamsDirectory() {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-          {teams.map((team) => (
-            <div key={team.id} className="bg-[#162A45] border border-[#3B82F6]/20 rounded-lg overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col hover:scale-[1.02] hover:shadow-[4px_4px_0px_0px_#3B82F6] hover:border-[#3B82F6]">
-              <div className="h-48 relative bg-surface-variant overflow-hidden">
-                <img 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                  src={team.image} 
-                  alt={team.name} 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#162A45] to-transparent"></div>
-                <div className={`absolute top-4 right-4 font-label-caps text-label-caps px-3 py-1 rounded-full ${team.rankClass}`}>
-                  Rank #{team.rank}
+          {teams.map((team, idx) => (
+            <motion.div
+              key={team.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: idx * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Link href={`/teams/${team.id}`} className="bg-[#162A45] border border-[#3B82F6]/20 rounded-lg overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col hover:scale-[1.02] hover:shadow-[4px_4px_0px_0px_#3B82F6] hover:border-[#3B82F6]">
+                <div className="h-48 relative bg-surface-variant overflow-hidden">
+                  <img 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    src={team.image} 
+                    alt={team.name} 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#162A45] to-transparent"></div>
+                  <div className={`absolute top-4 right-4 font-label-caps text-label-caps px-3 py-1 rounded-full ${team.rankClass}`}>
+                    Rank #{team.rank}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="p-6 flex flex-col flex-grow relative">
+                
+                <div className="p-6 flex flex-col flex-grow relative">
                 <div className="w-16 h-16 bg-background rounded-full absolute -top-8 border-4 border-[#162A45] flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary text-3xl">{team.icon}</span>
                 </div>
@@ -132,8 +141,8 @@ export default function TeamsDirectory() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
 

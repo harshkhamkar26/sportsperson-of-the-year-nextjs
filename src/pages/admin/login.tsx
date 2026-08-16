@@ -37,7 +37,7 @@ export default function Login() {
           {/* Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center" 
-            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAchvp0U6_RqVbsuVuVn8z4EZNckMuuZjLJdwt1PpYMpWluKYg8ljUw4-K_cAt4S_THAoxuojTcrNYjb1j3_0HYO1YDsz1arXqixyz7_ii-6czN2k_MP-U3--L9fiuyh_PU2IA3243Ss_HNlS_rmmWnW3SXJJCgIgA9sedPBC7OqXrUc7qsG7GagatmCyn9F1FReton5szf7hUNiPBW14qgNl-MPwj76tKHODO0Fa1SJd805YNGNGQ')" }}
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop')" }}
           >
             {/* Gradient Overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>

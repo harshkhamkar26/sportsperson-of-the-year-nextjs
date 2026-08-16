@@ -3,6 +3,7 @@ import { useSession, signOut } from "next-auth/react";
 import Head from "next/head";
 import Papa from "papaparse";
 import { useRouter } from "next/router";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession({ required: true, onUnauthenticated() { router.push('/admin/login'); } });
@@ -85,61 +86,19 @@ export default function AdminDashboard() {
   }
 
   return (
-    <>
-      <Head>
-        <title>Admin Dashboard - UAIU Athletics</title>
-      </Head>
-      
-      <div className="bg-surface-container-lowest text-on-surface font-body-md h-screen flex overflow-hidden">
-        {/* SideNavBar */}
-        <nav className="bg-surface-container border-r border-outline-variant/30 w-64 h-full flex flex-col p-gutter gap-base shrink-0 z-10 hidden md:flex">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary shrink-0 flex items-center justify-center font-headline-md font-bold text-on-surface">
-              U
-            </div>
-            <div>
-              <h1 className="text-headline-md font-headline-md font-bold text-on-surface">Admin Portal</h1>
-              <p className="font-label-caps text-label-caps text-on-surface-variant">Manage Athletics</p>
-            </div>
-          </div>
-          
-          <div className="flex flex-col gap-2 flex-1">
-            <a className="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg flex items-center gap-3 px-4 py-3 hover:translate-x-1 transition-transform duration-200" href="#">
-              <span className="material-symbols-outlined">group</span>
-              <span className="font-body-md text-body-md">Students</span>
-            </a>
-            <a className="bg-primary-container text-on-primary-container rounded-lg font-bold flex items-center gap-3 px-4 py-3 scale-95 duration-150" href="#">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-              <span className="font-body-md text-body-md">Data Import</span>
-            </a>
-            <a className="text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg flex items-center gap-3 px-4 py-3 hover:translate-x-1 transition-transform duration-200" href="/">
-              <span className="material-symbols-outlined">leaderboard</span>
-              <span className="font-body-md text-body-md">View Leaderboard</span>
-            </a>
-          </div>
-
-          <div className="flex flex-col gap-2 pt-6 border-t border-outline-variant/30">
-            <button onClick={() => signOut()} className="text-error hover:bg-error/10 rounded-lg flex items-center gap-3 px-4 py-2 hover:translate-x-1 transition-all duration-200 text-left">
-              <span className="material-symbols-outlined">logout</span>
-              <span className="font-body-md text-body-md">Sign Out</span>
-            </button>
-          </div>
-        </nav>
-
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col relative">
-          <header className="w-full px-margin-mobile md:px-margin-desktop py-6 flex justify-between items-center border-b border-outline-variant/20 bg-surface-container-lowest/80 backdrop-blur-md sticky top-0 z-20">
-            <div className="flex items-center gap-4">
-              <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold">Dashboard &amp; Import</h2>
-            </div>
-            <div className="flex items-center gap-4 text-on-surface-variant">
-              <span className="text-sm font-label-caps">{session?.user?.email}</span>
-              <button className="hover:text-primary transition-colors relative">
-                <span className="material-symbols-outlined">notifications</span>
-                <span className="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
-              </button>
-            </div>
-          </header>
+    <AdminLayout title="Admin Dashboard - UAIU Athletics">
+      <header className="w-full px-margin-mobile md:px-margin-desktop py-6 flex justify-between items-center border-b border-outline-variant/20 bg-surface-container-lowest/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="flex items-center gap-4">
+          <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold">Dashboard &amp; Import</h2>
+        </div>
+        <div className="flex items-center gap-4 text-on-surface-variant">
+          <span className="text-sm font-label-caps">{session?.user?.email}</span>
+          <button className="hover:text-primary transition-colors relative">
+            <span className="material-symbols-outlined">notifications</span>
+            <span className="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+          </button>
+        </div>
+      </header>
 
           <div className="p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full flex flex-col gap-8">
             
@@ -291,8 +250,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
-        </main>
-      </div>
-    </>
+    </AdminLayout>
   );
 }

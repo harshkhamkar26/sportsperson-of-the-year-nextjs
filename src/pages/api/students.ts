@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST" && req.method !== "GET") {
-    res.setHeader("Allow", ["GET", "POST"]);
+  if (req.method !== "POST" && req.method !== "GET" && req.method !== "PATCH") {
+    res.setHeader("Allow", ["GET", "POST", "PATCH"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
@@ -62,6 +62,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Failed to fetch students." });
+    }
+  } else if (req.method === "PATCH") {
+    try {
+      const { id, photoUrl } = req.body;
+      if (!id) return res.status(400).json({ error: "Missing student ID." });
+
+      const student = await prisma.student.update({
+        where: { id },
+        data: { photoUrl },
+      });
+
+      return res.status(200).json(student);
+    } catch (error: any) {
+      console.error(error);
+      return res.status(500).json({ error: "Failed to update student." });
     }
   }
 }

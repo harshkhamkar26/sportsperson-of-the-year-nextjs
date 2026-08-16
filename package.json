@@ -10,24 +10,34 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "bcryptjs": "^3.0.3",
+    "framer-motion": "^13.1.0",
+    "lucide-react": "^1.31.0",
     "next": "16.3.1",
     "next-auth": "^4.24.15",
     "papaparse": "^5.6.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-parallax-tilt": "^1.7.337",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@eslint/eslintrc": "^3",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
+    "@types/papaparse": "^5.3.15",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/papaparse": "^5.3.15",
     "eslint": "^9",
-    "eslint-config-next": "16.3.1",
-    "prisma": "^5.22.0",
-    "tailwindcss": "^4",
+    "eslint-config-next": "15.1.4",
+    "postcss": "^8.5.26",
+    "prisma": "^6.2.1",
+    "tailwindcss": "^4.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

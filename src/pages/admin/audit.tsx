@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminAudit() {
   const { data: session, status } = useSession({ required: true, onUnauthenticated() { router.push('/admin/login'); } });
@@ -24,69 +25,9 @@ export default function AdminAudit() {
   }
 
   return (
-    <>
-      <Head>
-        <title>Audit Logs - Admin Portal</title>
-      </Head>
-      
-      <div className="flex h-screen overflow-hidden font-body-md text-body-md bg-background text-on-background">
-        
-        {/* SideNavBar */}
-        <nav className="hidden md:flex flex-col h-full bg-surface-container border-r border-outline-variant/30 w-64 p-gutter gap-base z-10 shrink-0">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0 flex items-center justify-center bg-surface-container-high">
-              <span className="font-headline-md font-bold text-on-surface">U</span>
-            </div>
-            <div>
-              <h2 className="text-headline-md font-headline-md font-bold text-on-surface leading-tight">Admin Portal</h2>
-              <span className="font-label-caps text-label-caps text-on-surface-variant block mt-1">Manage Athletics</span>
-            </div>
-          </div>
-          
-          <button className="w-full py-3 bg-primary text-on-primary rounded-lg font-headline-md text-[14px] font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-4 group">
-            <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">summarize</span>
-            Generate Report
-          </button>
-          
-          <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/students">
-              <span className="material-symbols-outlined">group</span>
-              <span className="font-body-md text-body-md">Students</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/dashboard">
-              <span className="material-symbols-outlined">analytics</span>
-              <span className="font-body-md text-body-md">Data Import</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/results">
-              <span className="material-symbols-outlined">emoji_events</span>
-              <span className="font-body-md text-body-md">Results</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/rules">
-              <span className="material-symbols-outlined">rule</span>
-              <span className="font-body-md text-body-md">Point Rules</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-lg font-bold transition-all duration-200" href="/admin/audit">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>history</span>
-              <span className="font-body-md text-body-md">Audit Logs</span>
-            </a>
-          </div>
-          
-          <div className="mt-auto pt-4 border-t border-outline-variant/20 flex flex-col gap-1">
-            <button onClick={() => signOut()} className="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/10 rounded-lg transition-all duration-200 hover:translate-x-1 w-full text-left">
-              <span className="material-symbols-outlined">logout</span>
-              <span className="font-body-md text-body-md">Sign Out</span>
-            </button>
-          </div>
-        </nav>
+    <AdminLayout title="Audit Logs - Admin Portal">
+      <div className="flex-1 overflow-y-auto w-full">
 
-        {/* Mobile Top Nav Placeholder */}
-        <nav className="md:hidden flex items-center justify-between p-4 bg-surface-container border-b border-outline-variant/30 sticky top-0 z-50 absolute w-full">
-          <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Admin</h1>
-          <button className="text-on-surface"><span className="material-symbols-outlined">menu</span></button>
-        </nav>
-
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-background relative pt-[72px] md:pt-0">
           
           {/* Header */}
           <header className="h-24 md:h-20 flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 md:py-0 border-b border-outline-variant/20 shrink-0 relative z-10 bg-surface-container-lowest/80 backdrop-blur-md">
@@ -194,7 +135,7 @@ export default function AdminAudit() {
                         </td>
                         <td className="py-3 px-6">
                           <div className="flex items-center gap-3">
-                            <img className="w-8 h-8 rounded-full border border-outline-variant/50 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoB-W9mem9BdWGnXPyEiyqsZh8bLj05pTZjfnw4F_9aJgIXesvtYxPuponKOK3kk8nxRLrJihASyBfmMg7xB1uAlYQz11hIAjwYLRFIpWawinOHf0x20_9vzOt03_y5x-D2UJ4f4YLPYugJY4XgQKyUUiXlsoOw9q3-M2x_lA6V87DRhfY1HkIwoSca28Z5JqD3JqF_M126EBBO2zMwUa8jRQsPI_RF5fcMVyOt5_l1uwnr3vJZxA" alt="Admin" />
+                            <img className="w-8 h-8 rounded-full border border-outline-variant/50 object-cover" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=200&auto=format&fit=crop" alt="Admin" />
                             <div>
                               <div className="text-sm text-on-surface">Coach Carter</div>
                               <div className="text-xs text-on-surface-variant font-body-md">Athletics Dept</div>
@@ -283,7 +224,7 @@ export default function AdminAudit() {
                         </td>
                         <td className="py-3 px-6">
                           <div className="flex items-center gap-3">
-                            <img className="w-8 h-8 rounded-full border border-outline-variant/50 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTrDNlZuV8GgaGcKXhbifJYb7xyZMPLdFbLe-SQbqIR-zOgUyl0v9lPvF3tdkE1YF8hx7WHIH9CXQi5ziqsHKmQSazfWcaqx81y1h8Nt_UNB9Ohc46kocrF9uIE-cTrZOmRIhD30ab4b_S5T-22gdxkZq7uceEuhRbMl-bCocZdpftE7d_sprK4hkQlvvQ9jykQ5pP66XGf3HXupFzWpW2Bz5o8w8kI98QvD2bfdehBPdYVLQJeWw" alt="Admin" />
+                            <img className="w-8 h-8 rounded-full border border-outline-variant/50 object-cover" src="https://images.unsplash.com/photo-1526314141639-c5ec37df32f8?q=80&w=200&auto=format&fit=crop" alt="Admin" />
                             <div>
                               <div className="text-sm text-on-surface">System Admin</div>
                               <div className="text-xs text-on-surface-variant font-body-md">Root</div>
@@ -425,8 +366,8 @@ export default function AdminAudit() {
 
             </div>
           </div>
-        </main>
+        
       </div>
-    </>
+    </AdminLayout>
   );
 }

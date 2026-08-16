@@ -2,6 +2,7 @@ import React from "react";
 import { useSession, signOut } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminRules() {
   const { data: session, status } = useSession({ required: true, onUnauthenticated() { router.push('/admin/login'); } });
@@ -12,65 +13,9 @@ export default function AdminRules() {
   }
 
   return (
-    <>
-      <Head>
-        <title>Point Rules Configuration - Admin Portal</title>
-      </Head>
-      
-      <div className="flex h-screen overflow-hidden font-body-md text-body-md bg-background text-on-background">
-        
-        {/* SideNavBar */}
-        <nav className="hidden md:flex flex-col h-full bg-surface-container border-r border-outline-variant/30 w-64 p-gutter gap-base z-10 shrink-0">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0 flex items-center justify-center bg-surface-container-high">
-              <span className="font-headline-md font-bold text-on-surface">U</span>
-            </div>
-            <div>
-              <h2 className="text-headline-md font-headline-md font-bold text-on-surface leading-tight">Admin Portal</h2>
-              <span className="font-label-caps text-label-caps text-on-surface-variant block mt-1">Manage Athletics</span>
-            </div>
-          </div>
-          
-          <button className="w-full py-3 bg-primary text-on-primary rounded-lg font-headline-md text-[14px] font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-4 group">
-            <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">add_chart</span>
-            Generate Report
-          </button>
-          
-          <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/students">
-              <span className="material-symbols-outlined">group</span>
-              <span className="font-body-md text-body-md">Students</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/dashboard">
-              <span className="material-symbols-outlined">analytics</span>
-              <span className="font-body-md text-body-md">Data Import</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-200 hover:translate-x-1" href="/admin/results">
-              <span className="material-symbols-outlined">emoji_events</span>
-              <span className="font-body-md text-body-md">Results</span>
-            </a>
-            <a className="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-lg font-bold transition-all duration-200" href="/admin/rules">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>rule</span>
-              <span className="font-body-md text-body-md">Point Rules</span>
-            </a>
-          </div>
-          
-          <div className="mt-auto pt-4 border-t border-outline-variant/20 flex flex-col gap-1">
-            <button onClick={() => signOut()} className="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/10 rounded-lg transition-all duration-200 hover:translate-x-1 w-full text-left">
-              <span className="material-symbols-outlined">logout</span>
-              <span className="font-body-md text-body-md">Sign Out</span>
-            </button>
-          </div>
-        </nav>
+    <AdminLayout title="Point Rules Configuration - Admin Portal">
+      <div className="flex-1 overflow-y-auto w-full">
 
-        {/* Mobile Top Nav Placeholder */}
-        <nav className="md:hidden flex items-center justify-between p-4 bg-surface-container border-b border-outline-variant/30 sticky top-0 z-50 absolute w-full">
-          <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Admin</h1>
-          <button className="text-on-surface"><span className="material-symbols-outlined">menu</span></button>
-        </nav>
-
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-background relative pt-[72px] md:pt-0">
           
           <div className="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop">
             <div className="max-w-container-max mx-auto flex flex-col gap-8">
@@ -226,8 +171,8 @@ export default function AdminRules() {
               </div>
             </div>
           </div>
-        </main>
+        
       </div>
-    </>
+    </AdminLayout>
   );
 }

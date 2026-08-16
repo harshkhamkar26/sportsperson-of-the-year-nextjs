@@ -2,10 +2,24 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../../components/Layout';
+import { getRankings } from '@/lib/rankings';
+import { motion } from 'framer-motion';
+import Avatar from '@/components/Avatar';
+import AnimatedCounter from '@/components/AnimatedCounter';
 
-export default function SportDetail() {
+export async function getServerSideProps(context: any) {
+  const sportId = context.params?.id as string;
+  const rankings = await getRankings({}, sportId);
+  const top3 = rankings.slice(0, 3);
+  return { props: { top3 } };
+}
+
+export default function SportDetail({ top3 }: { top3: any[] }) {
   const router = useRouter();
   const { id } = router.query;
+  const rank1 = top3[0] || null;
+  const rank2 = top3[1] || null;
+  const rank3 = top3[2] || null;
   
   // Title capitalization
   const sportName = typeof id === 'string' ? id.charAt(0).toUpperCase() + id.slice(1) : 'Basketball';
@@ -15,7 +29,7 @@ export default function SportDetail() {
       <div className="flex flex-col flex-grow">
         {/* Hero Section */}
         <section className="relative w-full h-[614px] min-h-[500px] flex items-end pb-12 mb-20">
-          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60 mix-blend-luminosity" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuClETeIkspaRmDrY17nCvMWMo1tqJtq-JcIf8dUUqglQzMccLe5P-UqvL964T-eUgpDdWUnRTiluQHrOrUl8PCI5NOj-Q6B3jlsQN_tl5REwMKyWHcNmsP6GaMXBn6bmiIMjiPHBclqiaaitBFmG8HmdLDYFs3IFeLFDEaUsutX-9VFamLxrCd1bmAhz-6t7AerNoCKH2J1p2jd0cfRcFf2qmsj7MZ4BrzrBRQbsnEX2ssERdFgq3Q')" }}></div>
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60 mix-blend-luminosity" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1526566762798-8fac9c07aa7c?q=80&w=800&auto=format&fit=crop')" }}></div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background"></div>
           <div className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -61,48 +75,72 @@ export default function SportDetail() {
               </div>
               <div className="flex flex-col md:flex-row items-end justify-center gap-4 h-auto md:h-[400px] mt-16 md:mt-12">
                 {/* Rank 2 */}
-                <div className="w-full md:w-1/3 h-[280px] bg-surface-container-low rounded-t-xl relative border-t-2 border-l-2 border-r-2 border-rank-silver flex flex-col items-center pt-12 pb-4 px-4 shadow-[0_0_15px_rgba(192,192,192,0.2)] hover:-translate-y-2 transition-transform mt-12 md:mt-0">
-                  <div className="absolute -top-10 w-20 h-20 rounded-full border-4 border-rank-silver overflow-hidden bg-surface-variant">
-                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNU_BHYCzufWqYXH_NUWiBMRAtUbaob7nf43zdUYWb-rg6EGDBy6KCcjAJiiYYfhOlRuO9nQ1SlWpxG4xtpptuMOF9bcq0TWH9qUNUMXIZ32MQJKeT6YYhU6-4_aDoOBNZ1z6nmJ7KmPsAI4vSJweAWwBFQ0MWz_prvxtisq7c_TzKZ8nnjNvlN9LvYsFZUG3dJlFToL5a-oQwO2P9XvTmAYd7OAJeGidJpt0cbbBZFj9r3OOforw" alt="Sarah Jenkins" />
-                  </div>
-                  <div className="absolute -top-12 right-1/2 translate-x-12 bg-rank-silver text-on-background font-label-caps text-label-caps px-2 py-1 rounded shadow-lg text-xs font-bold">2ND</div>
-                  <h3 className="font-headline-md text-headline-md text-on-surface text-center">Sarah Jenkins</h3>
-                  <p className="font-label-caps text-label-caps text-on-surface-variant mt-1">PG • Junior</p>
-                  <div className="mt-auto">
-                    <span className="font-data-tabular text-data-tabular text-rank-silver text-2xl font-bold">840</span>
-                    <span className="font-label-caps text-label-caps text-on-surface-variant text-xs ml-1">PTS</span>
-                  </div>
-                </div>
+                {rank2 ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    viewport={{ once: true }}
+                    className="w-full md:w-1/3 h-[280px] bg-surface-container-low rounded-t-xl relative border-t-2 border-l-2 border-r-2 border-rank-silver flex flex-col items-center pt-12 pb-4 px-4 shadow-[0_0_15px_rgba(192,192,192,0.2)] hover:-translate-y-2 transition-transform mt-12 md:mt-0"
+                  >
+                    <div className="absolute -top-10 w-20 h-20 rounded-full border-4 border-rank-silver overflow-hidden bg-surface-variant">
+                      <Avatar photoUrl={rank2.photoUrl} name={rank2.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute -top-12 right-1/2 translate-x-12 bg-rank-silver text-on-background font-label-caps text-label-caps px-2 py-1 rounded shadow-lg text-xs font-bold">2ND</div>
+                    <h3 className="font-headline-md text-headline-md text-on-surface text-center">{rank2.name}</h3>
+                    <p className="font-label-caps text-label-caps text-on-surface-variant mt-1">{rank2.className}</p>
+                    <div className="mt-auto">
+                      <AnimatedCounter value={rank2.totalPoints} className="font-data-tabular text-data-tabular text-rank-silver text-2xl font-bold" />
+                      <span className="font-label-caps text-label-caps text-on-surface-variant text-xs ml-1">PTS</span>
+                    </div>
+                  </motion.div>
+                ) : <div className="w-full md:w-1/3 mt-12 md:mt-0"></div>}
                 
                 {/* Rank 1 */}
-                <div className="w-full md:w-1/3 h-[340px] bg-[#162A45] rounded-t-xl relative border-t-2 border-l-2 border-r-2 border-rank-gold flex flex-col items-center pt-14 pb-4 px-4 z-10 shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:-translate-y-2 transition-transform mt-12 md:mt-0">
-                  <div className="absolute -top-12 w-24 h-24 rounded-full border-4 border-rank-gold overflow-hidden bg-surface-variant shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN8bdp2LmlE0TnO2vawgKnzVBF_U71TbTIG9nDIbNDjhFJd4rSAf6kPwfbiXayy5CTuuwUOuRFk8ittLHtyqAFgLjLdd61hLqCFf_q3Z8tvJ7U7UQRTaQcsBCoZVjiiZt69xBXBTnmk2j5BgX676tf4cox7ZWgvxT498HToHQCdKIB7OMHkPGXYXXL4E91Z0Vr7iPGZQpFxm2XizHgTQq6oDObP2UN8nhdxZUFNmXCAQCIaqw0MzQ" alt="Marcus Chen" />
-                  </div>
-                  <div className="absolute -top-14 right-1/2 translate-x-14 bg-rank-gold text-[#502400] font-label-caps text-label-caps px-3 py-1 rounded shadow-lg text-sm font-bold">1ST</div>
-                  <h3 className="font-headline-md text-headline-md text-on-surface text-center font-bold">Marcus Chen</h3>
-                  <p className="font-label-caps text-label-caps text-primary-fixed-dim mt-1">SG • Senior</p>
-                  <div className="mt-auto flex flex-col items-center">
-                    <div className="flex items-baseline">
-                      <span className="font-data-tabular text-data-tabular text-rank-gold text-4xl font-bold">1,250</span>
-                      <span className="font-label-caps text-label-caps text-on-surface-variant ml-2">PTS</span>
+                {rank1 ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    viewport={{ once: true }}
+                    className="w-full md:w-1/3 h-[340px] bg-[#162A45] rounded-t-xl relative border-t-2 border-l-2 border-r-2 border-rank-gold flex flex-col items-center pt-14 pb-4 px-4 z-10 shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:-translate-y-2 transition-transform mt-12 md:mt-0"
+                  >
+                    <div className="absolute -top-12 w-24 h-24 rounded-full border-4 border-rank-gold overflow-hidden bg-surface-variant shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                      <Avatar photoUrl={rank1.photoUrl} name={rank1.name} className="w-full h-full object-cover" />
                     </div>
-                  </div>
-                </div>
+                    <div className="absolute -top-14 right-1/2 translate-x-14 bg-rank-gold text-[#502400] font-label-caps text-label-caps px-3 py-1 rounded shadow-lg text-sm font-bold">1ST</div>
+                    <h3 className="font-headline-md text-headline-md text-on-surface text-center font-bold">{rank1.name}</h3>
+                    <p className="font-label-caps text-label-caps text-primary-fixed-dim mt-1">{rank1.className}</p>
+                    <div className="mt-auto flex flex-col items-center">
+                      <div className="flex items-baseline">
+                        <AnimatedCounter value={rank1.totalPoints} className="font-data-tabular text-data-tabular text-rank-gold text-4xl font-bold" />
+                        <span className="font-label-caps text-label-caps text-on-surface-variant ml-2">PTS</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : <div className="w-full md:w-1/3 mt-12 md:mt-0"></div>}
 
                 {/* Rank 3 */}
-                <div className="w-full md:w-1/3 h-[250px] bg-surface-container-low rounded-t-xl relative border-t-2 border-l-2 border-r-2 border-rank-bronze flex flex-col items-center pt-10 pb-4 px-4 shadow-[0_0_15px_rgba(205,127,50,0.2)] hover:-translate-y-2 transition-transform mt-12 md:mt-0">
-                  <div className="absolute -top-8 w-16 h-16 rounded-full border-4 border-rank-bronze overflow-hidden bg-surface-variant">
-                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBD0y06oYxZasyjfs4bcyXDDeYbPyLAmKo2EJOFs1PSIt9Le59hV9iBdJqrPnlww79aA2rGZXZaCfJHP4fqqeX0B-wob_T-psNjn5nnmdvRsqOi84__ck-G0V_i3oBJlEM-Ec4zcKrgdOaqMrIGNGYFKt-dyEXy5AC9Af2urdElQuCTrRNr5k5dN5EFXJX4NP6JMpQVBheSjlVxRhvBggaBbWBAtbIKBJVS-eXbceRJ_HfHXKCfno" alt="David Osei" />
-                  </div>
-                  <div className="absolute -top-10 right-1/2 translate-x-10 bg-rank-bronze text-on-background font-label-caps text-label-caps px-2 py-1 rounded shadow-lg text-xs font-bold">3RD</div>
-                  <h3 className="font-headline-md text-headline-md text-on-surface text-center text-lg mt-2">David Osei</h3>
-                  <p className="font-label-caps text-label-caps text-on-surface-variant mt-1 text-xs">SF • Sophomore</p>
-                  <div className="mt-auto">
-                    <span className="font-data-tabular text-data-tabular text-rank-bronze text-xl font-bold">795</span>
-                    <span className="font-label-caps text-label-caps text-on-surface-variant text-xs ml-1">PTS</span>
-                  </div>
-                </div>
+                {rank3 ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    viewport={{ once: true }}
+                    className="w-full md:w-1/3 h-[250px] bg-surface-container-low rounded-t-xl relative border-t-2 border-l-2 border-r-2 border-rank-bronze flex flex-col items-center pt-10 pb-4 px-4 shadow-[0_0_15px_rgba(205,127,50,0.2)] hover:-translate-y-2 transition-transform mt-12 md:mt-0"
+                  >
+                    <div className="absolute -top-8 w-16 h-16 rounded-full border-4 border-rank-bronze overflow-hidden bg-surface-variant">
+                      <Avatar photoUrl={rank3.photoUrl} name={rank3.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute -top-10 right-1/2 translate-x-10 bg-rank-bronze text-on-background font-label-caps text-label-caps px-2 py-1 rounded shadow-lg text-xs font-bold">3RD</div>
+                    <h3 className="font-headline-md text-headline-md text-on-surface text-center text-lg mt-2">{rank3.name}</h3>
+                    <p className="font-label-caps text-label-caps text-on-surface-variant mt-1 text-xs">{rank3.className}</p>
+                    <div className="mt-auto">
+                      <AnimatedCounter value={rank3.totalPoints} className="font-data-tabular text-data-tabular text-rank-bronze text-xl font-bold" />
+                      <span className="font-label-caps text-label-caps text-on-surface-variant text-xs ml-1">PTS</span>
+                    </div>
+                  </motion.div>
+                ) : <div className="w-full md:w-1/3 mt-12 md:mt-0"></div>}
               </div>
             </section>
 
@@ -184,7 +222,7 @@ export default function SportDetail() {
                       <td className="py-3 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-surface-variant overflow-hidden">
-                            <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoh95uYRS4Fgj2cCtB_ojRVPJ29I1UwYLmgYY3QJ1k0KqUabsJrt6cnRbixoDWjh1srn-6A2UMH0IsMhIShRjiFsv03DOOtyXvMoFhhJ7zfkoKH1nPRf2bGUbZFQpXx6XOzEPq7ou552_Yy4e1Pcb-M9i9QGJfrvmo8lS9ROHmIQ6BSLxG_FyjzXKTJXhao2hxdrRC9cI1B8SrTjyWv5GK7Y2nJKoX9MoFTPojDuFANd15Z20b8UA" alt="Marcus Chen"/>
+                            <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1519861531473-9200262188bf?q=80&w=800&auto=format&fit=crop" alt="Marcus Chen"/>
                           </div>
                           <div className="font-medium">Marcus Chen</div>
                         </div>
@@ -200,7 +238,7 @@ export default function SportDetail() {
                       <td className="py-3 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-surface-variant overflow-hidden">
-                            <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfIPYZhpgiyM1auM0wEpRnjOzwANP2SUvLhRA6APJj0GKJo5vUEPByaFg9R8EAlU_zjpEPkkHwZLcaw6Vh04JGoiAeDlLci7RIAShgORyWjnaS0YkWykGnVuGl7NbLgPgZuJ0hjtsM0fV4okbsqQL-Q8dWtsSmSg6kN1EzdTZ645j3Pw68-ZB4ta8eCbmOuYMFAJkhYnZHKOMUAWP9TlKihfbUr3RVsAopUhjq25FtBuW9b9auaLo" alt="Sarah Jenkins"/>
+                            <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop" alt="Sarah Jenkins"/>
                           </div>
                           <div className="font-medium">Sarah Jenkins</div>
                         </div>

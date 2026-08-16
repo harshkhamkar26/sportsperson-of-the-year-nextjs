@@ -8,36 +8,36 @@ export default function SportsDirectory() {
       id: 'basketball',
       name: 'Basketball',
       icon: 'sports_basketball',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYSUS6_8lG4HYIDlfq6WfMhSjkhDop71tvlk2DqlG6c3TYbnvsDzxYao8ybGoJHDWdDH4klIog-pejKW9BdHQjd-eWMzRhEOzpCaFXWNd_XigabFz9L5eRmpgg0f94Rlpri8FKLMf-Uu-bZmGCbOaDR-agJ7R3wijbGLlLQ5klfMJ1l-vsN07INUAcm6DCEBuXTg6Tk4T80OgnPLWQ9N8L7VyfeVScQ6554yAXCEv8RcRlHc9hrLA',
+      image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=800&auto=format&fit=crop',
       athletes: 142,
       events: 12,
       topAthlete: {
         name: 'Marcus Vance',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA8vX-vA2OjeiCAKc9cetwpaJ3LRiSe2CSW-Gd6nzVmsS2twIldCZvbbrYWz8r61Ifs7b4zggklkL0tzszJtGgYNEbnwNnqgFxEsc3TJH4uWpLIBPVHSD9VbiQ6ijMc_lUsni1T4p0KZboKD7haBm6E8kKE-ePwXLhzbunuaVARzUavoHQuxh3c1DTX9WgO12z3rQ_7jZBQSzaTaTBKO4CiV1FW4iUwEyukfGuTXv2ft1nanqPflr0'
+        image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop'
       }
     },
     {
       id: 'football',
       name: 'Football',
       icon: 'sports_soccer',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9edQ2xW4RV_y3_z8yb2iY4ttPpLfgvvq_88zhDFdTu9AI8VjwQW485MM9JyrQKdkUHeqw0IYFoEmXhscm7-7q-Kx7XAHJRud8SDG-lDZ8UuNZEirLZyAgoC6OIevITeTGdvONy7ydfD_92cuBFh3cubKYpkC8jnKGf0YIEBMBG67fyrknOf3F_yE2Fyl2ZUMdFkvPeXUCVWgKuOk7T87cio9yGiDsAWTAiAu2-obH9B4QBjcK6M4',
+      image: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?q=80&w=800&auto=format&fit=crop',
       athletes: 210,
       events: 18,
       topAthlete: {
         name: 'Elena Rostova',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDyREmagzCQolszCOYAkCAn1L0q7cB6wt_LDqqAqrE-2pD84jD7jQlZyjk3o2WzjqliDbKGmdIXBoUfPIq5KqItTSw66Knna2x1jDu-Jf9jrvg2KxAkXHmyYzoWHwynYTsq22y6qbKOYhRr9D4Sf5LL4GYGlIiRkMWZTGphvz4eH5oRjVCdOEd4PtsFL4CJRH8lkUvSGIIqf250koHLgj6B3g_NsH6qI8JETeJjt-aeHUSBNw7tgNw'
+        image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop'
       }
     },
     {
       id: 'athletics',
       name: 'Athletics',
       icon: 'sprint',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCSIjEk-OG1H2LB9mGJJXPIPzhSQKQn1fV4XK-og0MdbN6feoVI_gKAKhzch2AUzL5_fByPtd6Xq9THfUYbMMaBt0x-HrbyXaZHTf0PPhb2zrUl7O8bbgewhRN8JTIjOgadu63Yj6KvRBj3i9rJqkor_4dSAqHEBBskFZvAGkwgMVhqNepOtxbPuCuQ935aCgXNuIZ21qCGrjW9IgcnrQnhJER5IZH3JFjhe_FrWeNY6Ds5GF5_iF4',
+      image: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?q=80&w=800&auto=format&fit=crop',
       athletes: 85,
       events: 24,
       topAthlete: {
         name: 'David Chen',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1rczlDs-VXwYC4M4eyrF9oVI9I0rP7Xf3gJVNWQU6lqoB6nKhnG3H156uwl1BVKoHuNsg9-vUh-jkSkaibbbAIdr-v7T-C4VOrkz1hhYI58EI7AFoUoTDo_FlwVefBHXIFXaGHPPFXjvR7Qcetfg5GoqUIjgxqx_pfRBFihq1FH66C8baZl4ISWL0aNyBUBx_O7ZK74PnSqXkthrcyb5OYkLLGnzuD8z-SlXItK3Y-qZSva4bsrk'
+        image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=800&auto=format&fit=crop'
       }
     }
   ];

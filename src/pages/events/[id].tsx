@@ -49,7 +49,7 @@ export default function EventDetail() {
             <img 
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               alt="Basketball Championship Celebration" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhCNqFoysET4k0U6oVOgSAGsgj5RpngQKc850IKUmmoG5mhgCafeX967dnPCKR6hipaWlX445PD1ZZFUV0z7q8BCEi6zeEV0llXFJD8y_APw_OVpJqUhwzskgw7VcmR2lqvPZAPQpF6J4K1x6auGn_k5sksGa-CTgPBpo3RHd0_rfqB6luNziwF-nUJvqXO2frCW6W8MANXpB1lw8iThzn2hMJxJIq-HteTqx7Kgcj9CTTWqvd7s"
+              src="https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=800&auto=format&fit=crop"
             />
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A192F] via-[#0A192F]/80 to-transparent"></div>
@@ -135,7 +135,7 @@ export default function EventDetail() {
               {/* Player 1 */}
               <div className="bg-[#162A45]/40 backdrop-blur-md border border-primary/10 p-4 rounded-lg flex items-center gap-4 hover:scale-[1.02] transition-transform">
                 <div className="w-12 h-12 rounded-full bg-surface-bright overflow-hidden flex-shrink-0">
-                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7G_q7TlushnXZM0dCZ-YVshzO33llz-lYCw4orKVFMVdrSd5oKuBXbIH7w4Ae94elAbobPnaNQX4sYm7LqTEbQNNWqkXzBTNoDcMjuo6lhcw-r8KSN9oVoAfTzCoeuGpVOpmqBo1gjYZILKt7bLsqoHW3U33X58uVbDC8sZ9_jzzR04Um6HxmkirwhPnD7iFvLtXBIPeurKEjo-m0TkWp_h060ynImNsXznmSnCQEMSdGzA9lzTU" alt="Marcus" />
+                  <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop" alt="Marcus" />
                 </div>
                 <div>
                   <h5 className="font-headline-md text-[16px] text-on-surface">Marcus Vance</h5>
@@ -149,7 +149,7 @@ export default function EventDetail() {
               {/* Player 2 */}
               <div className="bg-[#162A45]/40 backdrop-blur-md border border-primary/10 p-4 rounded-lg flex items-center gap-4 hover:scale-[1.02] transition-transform">
                 <div className="w-12 h-12 rounded-full bg-surface-bright overflow-hidden flex-shrink-0">
-                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3u3vZB4MSbQmfjptxDaJtTpKK0-LF6ZGQVRZO0gMuCK3YdGYYqqqOh5qVHEWZJ_H95xANBDu0WL-RxOeoOCWO_vAfKa-cXTm1g0luhuIHyWPG1bEFdQOCwYVeq7NzU8wKq1cglL2vpy5TVyfcdnZl4ou3RN9iSrPodZvO4mwvXuGwLuROtNQFD-2PHx_YMB-8pEHnlen33KQh-_05_RVk58LGCOyOBJ9v0x9QIiqgNDRo7kd_SKo" alt="Elijah" />
+                  <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1519861531473-9200262188bf?q=80&w=800&auto=format&fit=crop" alt="Elijah" />
                 </div>
                 <div>
                   <h5 className="font-headline-md text-[16px] text-on-surface">Elijah Stone</h5>
