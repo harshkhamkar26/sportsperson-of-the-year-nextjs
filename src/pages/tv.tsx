@@ -8,31 +8,31 @@ export async function getServerSideProps() {
   const students = await getRankings();
   // Group by house to show school standings
   const houses: Record<string, any> = {};
+  
   students.forEach(s => {
-    if (!houses[s.house]) {
-      houses[s.house] = {
-        name: s.house,
+    const houseName = s.house || 'Unaffiliated';
+    if (!houses[houseName]) {
+      houses[houseName] = {
+        name: houseName,
         gold: 0,
         silver: 0,
         bronze: 0,
         totalPoints: 0,
-        eventsPlayed: new Set(),
+        eventsCount: 0,
       };
     }
-    s.history.forEach((h: any) => {
-      houses[s.house].eventsPlayed.add(h.event);
-      if (h.position === 1) houses[s.house].gold += 1;
-      if (h.position === 2) houses[s.house].silver += 1;
-      if (h.position === 3) houses[s.house].bronze += 1;
-    });
-    houses[s.house].totalPoints += s.totalPoints;
+    
+    houses[houseName].gold += s.medals.gold;
+    houses[houseName].silver += s.medals.silver;
+    houses[houseName].bronze += s.medals.bronze;
+    houses[houseName].totalPoints += s.totalPoints;
+    houses[houseName].eventsCount += s.eventsCount;
   });
 
   const rankings = Object.values(houses).map(h => ({
     ...h,
     totalMedals: h.gold + h.silver + h.bronze,
-    eventsPlayedCount: h.eventsPlayed.size,
-    avgScore: h.eventsPlayed.size > 0 ? Math.round(h.totalPoints / h.eventsPlayed.size) : 0,
+    avgScore: h.eventsCount > 0 ? Math.round(h.totalPoints / h.eventsCount) : 0,
   })).sort((a, b) => b.totalPoints - a.totalPoints);
 
   return { props: { rankings } };

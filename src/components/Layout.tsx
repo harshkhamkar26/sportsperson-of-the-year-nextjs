@@ -65,7 +65,7 @@ export default function Layout({ children, title = "Universal AI University Athl
         </header>
 
         {/* Main Content Canvas */}
-        <main className="flex-grow w-full">
+        <main className="flex-grow w-full pt-20">
           {children}
         </main>
         
