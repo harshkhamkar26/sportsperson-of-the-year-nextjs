@@ -14,16 +14,16 @@ export default function Layout({ children, title = "Universal AI University Athl
       <div className="bg-surface-container-lowest text-on-surface font-body-md antialiased min-h-screen flex flex-col">
         {/* TopNavBar */}
         <header className="bg-background/90 dark:bg-background/90 backdrop-blur-md fixed top-0 w-full z-50 border-b border-white/10 shadow-sm transition-all duration-300">
-        <div className="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-          <Link href="/" className="flex items-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all">
+        <div className="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-4 lg:gap-8">
+          <Link href="/" className="flex items-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all shrink-0">
             <div className="flex items-center gap-3">
               <img alt="Universal AI University" className="h-10 w-auto object-contain drop-shadow-md" src="/images/uaiu-logo.png" />
-              <div className="h-8 w-px bg-white/20 hidden sm:block"></div>
-              <span className="font-headline-md text-on-surface font-bold text-lg hidden sm:block tracking-tight">Athletics</span>
+              <div className="h-8 w-px bg-white/20 hidden xl:block"></div>
+              <span className="font-headline-md text-on-surface font-bold text-lg hidden xl:block tracking-tight">Athletics</span>
             </div>
           </Link>
             
-            <div className="hidden md:flex gap-6 items-center">
+            <div className="hidden md:flex gap-3 lg:gap-6 items-center shrink-0">
               <Link href="/" className={`font-label-caps text-label-caps font-medium transition-colors ${router.pathname === '/' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant hover:text-on-surface'}`}>
                 Home
               </Link>
@@ -41,15 +41,15 @@ export default function Layout({ children, title = "Universal AI University Athl
               </Link>
             </div>
             
-            <div className="flex items-center gap-4 text-primary dark:text-primary-fixed-dim">
+            <div className="flex items-center gap-2 lg:gap-4 text-primary dark:text-primary-fixed-dim shrink-0">
               {/* Live Broadcast Button */}
-              <Link href="/live" className="hidden lg:flex items-center gap-2 bg-[#D32F2F] hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-colors border border-red-500/50">
+              <Link href="/live" className="hidden xl:flex items-center gap-2 bg-[#D32F2F] hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-colors border border-red-500/50">
                 <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                 Live Broadcast
               </Link>
 
               {/* TV Mode Button */}
-              <Link href="/tv" className="hidden lg:flex items-center gap-2 bg-surface-container hover:bg-surface-container-high px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-colors border border-outline-variant/30 text-on-surface">
+              <Link href="/tv" className="hidden xl:flex items-center gap-2 bg-surface-container hover:bg-surface-container-high px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-colors border border-outline-variant/30 text-on-surface">
                 <span className="material-symbols-outlined text-[16px]">tv</span>
                 TV Mode
               </Link>
