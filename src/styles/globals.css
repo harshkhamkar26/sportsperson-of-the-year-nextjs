@@ -61,6 +61,8 @@
   --font-headline-lg-mobile: Sora, sans-serif;
   --font-body-md: Inter, sans-serif;
   --font-headline-lg: Sora, sans-serif;
+  --font-display: Oswald, "Arial Narrow", sans-serif;
+  --font-sans: Inter, system-ui, sans-serif;
   --text-data-tabular: 16px;
   --text-data-tabular--line-height: 24px;
   --text-data-tabular--font-weight: 500;
