@@ -7,6 +7,7 @@ interface Props {
   variants?: Variants;
   className?: string;
   stagger?: number;
+  delay?: number;
   /** translate3d-only, GPU-friendly */
   as?: 'div' | 'section' | 'li' | 'article';
 }
@@ -15,9 +16,9 @@ interface Props {
  * Uniform scroll-reveal wrapper.
  * Wraps any block so it animates with the same cinematic language everywhere.
  */
-export default function Reveal({ children, variants, className = '', stagger = 0.15, as = 'div' }: Props) {
+export default function Reveal({ children, variants, className = '', stagger = 0.15, delay = 0, as = 'div' }: Props) {
   const Tag = motion[as];
-  const v = variants ? { ...staggerContainer(stagger), ...variants } : staggerContainer(stagger);
+  const v = variants ? { ...staggerContainer(stagger, delay), ...variants } : staggerContainer(stagger, delay);
 
   return (
     <Tag
@@ -33,11 +34,18 @@ export default function Reveal({ children, variants, className = '', stagger = 0
 }
 
 /** Single-element reveal (no stagger) */
-export function RevealOnce({ children, className = '', as = 'div' }: Omit<Props, 'stagger' | 'variants'>) {
+export function RevealOnce({ children, className = '', delay = 0, as = 'div' }: Omit<Props, 'stagger' | 'variants'>) {
   const Tag = motion[as];
+  const v = { ...fadeUp };
+  if (v.visible && typeof v.visible === 'object' && 'transition' in v.visible) {
+    (v.visible as any).transition = { ...(v.visible as any).transition, delay };
+  } else if (v.visible) {
+    (v.visible as any).transition = { delay };
+  }
+
   return (
     <Tag
-      variants={fadeUp}
+      variants={v}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-60px' }}
