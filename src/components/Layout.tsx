@@ -78,15 +78,26 @@ export default function Layout({ children, title = "Universal AI University Athl
               <span className="text-sm text-white/50">Empowering Student Athletes & Promoting Equal Athletic Excellence</span>
             </div>
 
-            <div className="flex items-center gap-6">
-              <Link href="/live" className="text-white/80 hover:text-white font-bold text-sm transition-colors">
-                Live Broadcast
-              </Link>
-              <span className="text-white/20">•</span>
-              <Link href="/admin/login" className="flex items-center gap-2 bg-transparent border border-white/20 hover:border-white/40 text-white/80 hover:text-white px-4 py-2 rounded-full font-bold text-sm transition-colors">
-                <span className="material-symbols-outlined text-sm">security</span>
-                Admin Portal
-              </Link>
+            <div className="flex flex-col items-center md:items-end gap-4 mt-6 md:mt-0">
+              <div className="flex items-center gap-6">
+                <Link href="/live" className="text-white/80 hover:text-white font-bold text-sm transition-colors">
+                  Live Broadcast
+                </Link>
+                <span className="text-white/20"> </span>
+                <Link href="/admin/login" className="flex items-center gap-2 bg-transparent border border-white/20 hover:border-white/40 text-white/80 hover:text-white px-4 py-2 rounded-full font-bold text-sm transition-colors">
+                  <span className="material-symbols-outlined text-sm">security</span>
+                  Admin Portal
+                </Link>
+              </div>
+              <div className="flex items-center gap-4 text-xs font-label-caps tracking-widest text-white/40">
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <span>|</span>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+                <span>|</span>
+                <Link href="/directory" className="hover:text-white transition-colors">Campus Directory</Link>
+                <span>|</span>
+                <a href="mailto:coach@uaiu.edu" className="hover:text-white transition-colors">Contact Coach</a>
+              </div>
             </div>
 
           </div>

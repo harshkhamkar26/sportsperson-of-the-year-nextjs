@@ -114,15 +114,9 @@ export default function Home({ top3 }: { top3: any[] }) {
                     <h4 className="font-headline-md text-headline-md text-on-surface mb-1">{rank2.name}</h4>
                     <p className="font-data-tabular text-data-tabular text-rank-silver mb-2"><AnimatedCounter value={rank2.totalPoints} /> PTS</p>
                     <div className="flex gap-2">
-                      {Array.from({ length: rank2.medals?.gold || 0 }).map((_, i) => (
-                        <span key={`g-${i}`} className="material-symbols-outlined text-rank-gold text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                      ))}
-                      {Array.from({ length: rank2.medals?.silver || 0 }).map((_, i) => (
-                        <span key={`s-${i}`} className="material-symbols-outlined text-rank-silver text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                      ))}
-                      {Array.from({ length: rank2.medals?.bronze || 0 }).map((_, i) => (
-                        <span key={`b-${i}`} className="material-symbols-outlined text-rank-bronze text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                      ))}
+                      {(rank2.medals?.gold || 0) > 0 && <span className="text-rank-gold text-sm font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>workspace_premium</span>{rank2.medals.gold}</span>}
+                      {(rank2.medals?.silver || 0) > 0 && <span className="text-rank-silver text-sm font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>workspace_premium</span>{rank2.medals.silver}</span>}
+                      {(rank2.medals?.bronze || 0) > 0 && <span className="text-rank-bronze text-sm font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>workspace_premium</span>{rank2.medals.bronze}</span>}
                     </div>
                   </div>
                 </Tilt>
@@ -148,15 +142,9 @@ export default function Home({ top3 }: { top3: any[] }) {
                     <h4 className="font-headline-md text-headline-md text-on-surface mb-1 text-2xl">{rank1.name}</h4>
                     <p className="font-data-tabular text-data-tabular text-rank-gold text-xl font-bold mb-3"><AnimatedCounter value={rank1.totalPoints} /> PTS</p>
                     <div className="flex gap-2 mb-2">
-                      {Array.from({ length: rank1.medals?.gold || 0 }).map((_, i) => (
-                        <span key={`g-${i}`} className="material-symbols-outlined text-rank-gold" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_events</span>
-                      ))}
-                      {Array.from({ length: rank1.medals?.silver || 0 }).map((_, i) => (
-                        <span key={`s-${i}`} className="material-symbols-outlined text-rank-silver" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_events</span>
-                      ))}
-                      {Array.from({ length: rank1.medals?.bronze || 0 }).map((_, i) => (
-                        <span key={`b-${i}`} className="material-symbols-outlined text-rank-bronze" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_events</span>
-                      ))}
+                      {(rank1.medals?.gold || 0) > 0 && <span className="text-rank-gold font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>emoji_events</span>{rank1.medals.gold}</span>}
+                      {(rank1.medals?.silver || 0) > 0 && <span className="text-rank-silver font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>emoji_events</span>{rank1.medals.silver}</span>}
+                      {(rank1.medals?.bronze || 0) > 0 && <span className="text-rank-bronze font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>emoji_events</span>{rank1.medals.bronze}</span>}
                     </div>
                   </div>
                 </Tilt>
@@ -182,15 +170,9 @@ export default function Home({ top3 }: { top3: any[] }) {
                     <h4 className="font-headline-md text-headline-md text-on-surface mb-1">{rank3.name}</h4>
                     <p className="font-data-tabular text-data-tabular text-rank-bronze mb-2"><AnimatedCounter value={rank3.totalPoints} /> PTS</p>
                     <div className="flex gap-2">
-                      {Array.from({ length: rank3.medals?.gold || 0 }).map((_, i) => (
-                        <span key={`g-${i}`} className="material-symbols-outlined text-rank-gold text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
-                      ))}
-                      {Array.from({ length: rank3.medals?.silver || 0 }).map((_, i) => (
-                        <span key={`s-${i}`} className="material-symbols-outlined text-rank-silver text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
-                      ))}
-                      {Array.from({ length: rank3.medals?.bronze || 0 }).map((_, i) => (
-                        <span key={`b-${i}`} className="material-symbols-outlined text-rank-bronze text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
-                      ))}
+                      {(rank3.medals?.gold || 0) > 0 && <span className="text-rank-gold text-sm font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>military_tech</span>{rank3.medals.gold}</span>}
+                      {(rank3.medals?.silver || 0) > 0 && <span className="text-rank-silver text-sm font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>military_tech</span>{rank3.medals.silver}</span>}
+                      {(rank3.medals?.bronze || 0) > 0 && <span className="text-rank-bronze text-sm font-bold flex items-center gap-1"><span className="material-symbols-outlined" style={{fontVariationSettings:"'FILL' 1"}}>military_tech</span>{rank3.medals.bronze}</span>}
                     </div>
                   </div>
                 </Tilt>

@@ -18,6 +18,18 @@ async function main() {
       role: "SUPER_ADMIN",
     },
   });
+
+  const harshPasswordHash = await bcrypt.hash("Harsh@890", 10);
+  await prisma.admin.upsert({
+    where: { email: "harshkhamkar26@gmail.com" },
+    update: { passwordHash: harshPasswordHash },
+    create: {
+      email: "harshkhamkar26@gmail.com",
+      name: "Harsh Khamkar",
+      passwordHash: harshPasswordHash,
+      role: "SUPER_ADMIN",
+    },
+  });
   console.log("Created Admin:", admin.email);
 
   // 2. Schools/Classes
