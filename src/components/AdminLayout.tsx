@@ -3,83 +3,102 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut } from 'next-auth/react';
+import CinematicBackground from '@/components/cinema/CinematicBackground';
 
-export default function AdminLayout({ children, title = "Admin Portal - UAIU Athletics" }: { children: React.ReactNode, title?: string }) {
+export default function AdminLayout({ children, title = "Sports Operations Center" }: { children: React.ReactNode, title?: string }) {
   const router = useRouter();
+
+  const NAV = [
+    { href: '/admin/dashboard', icon: 'analytics', label: 'Data Center' },
+    { href: '/admin/students', icon: 'group', label: 'Athletes' },
+    { href: '/admin/results', icon: 'emoji_events', label: 'Results' },
+    { href: '/admin/rules', icon: 'rule', label: 'Point Rules' },
+    { href: '/admin/audit', icon: 'history', label: 'Audit Logs' },
+    { href: '/admin/roles', icon: 'admin_panel_settings', label: 'Access Control' },
+  ];
 
   return (
     <>
       <Head>
         <title>{title}</title>
       </Head>
-      <div className="flex h-screen overflow-hidden font-body-md text-body-md bg-background text-on-background">
+      <div className="flex h-screen overflow-hidden bg-[#060606] text-white font-sans antialiased">
+        <CinematicBackground tone="ops" />
         
-        {/* SideNavBar */}
-        <nav className="hidden md:flex flex-col h-full bg-surface-container border-r border-outline-variant/30 w-64 p-gutter gap-base z-10 shrink-0">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shrink-0 flex items-center justify-center bg-surface-container-high">
-              <span className="font-headline-md font-bold text-on-surface">U</span>
-            </div>
-            <div>
-              <h2 className="text-headline-md font-headline-md font-bold text-on-surface leading-tight">Admin Portal</h2>
-              <span className="font-label-caps text-label-caps text-on-surface-variant block mt-1">Manage Athletics</span>
-            </div>
-          </div>
-          
-          <button className="w-full py-3 bg-primary text-on-primary rounded-lg font-headline-md text-[14px] font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-4 group">
-            <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">add_chart</span>
-            Generate Report
-          </button>
-          
-          <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
-            <Link href="/admin/students" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${router.pathname === '/admin/students' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:translate-x-1'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: router.pathname === '/admin/students' ? "'FILL' 1" : "'FILL' 0" }}>group</span>
-              <span className="font-body-md text-body-md">Students</span>
-            </Link>
-            
-            <Link href="/admin/dashboard" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${router.pathname === '/admin/dashboard' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:translate-x-1'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: router.pathname === '/admin/dashboard' ? "'FILL' 1" : "'FILL' 0" }}>analytics</span>
-              <span className="font-body-md text-body-md">Data Import</span>
-            </Link>
-            
-            <Link href="/admin/results" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${router.pathname === '/admin/results' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:translate-x-1'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: router.pathname === '/admin/results' ? "'FILL' 1" : "'FILL' 0" }}>emoji_events</span>
-              <span className="font-body-md text-body-md">Results</span>
-            </Link>
-            
-            <Link href="/admin/rules" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${router.pathname === '/admin/rules' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:translate-x-1'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: router.pathname === '/admin/rules' ? "'FILL' 1" : "'FILL' 0" }}>rule</span>
-              <span className="font-body-md text-body-md">Point Rules</span>
-            </Link>
-            
-            <Link href="/admin/audit" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${router.pathname === '/admin/audit' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:translate-x-1'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: router.pathname === '/admin/audit' ? "'FILL' 1" : "'FILL' 0" }}>history</span>
-              <span className="font-body-md text-body-md">Audit Logs</span>
-            </Link>
-
-            <Link href="/admin/roles" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${router.pathname === '/admin/roles' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:translate-x-1'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: router.pathname === '/admin/roles' ? "'FILL' 1" : "'FILL' 0" }}>admin_panel_settings</span>
-              <span className="font-body-md text-body-md">Roles & Permissions</span>
+        {/* SIDEBAR */}
+        <nav className="relative z-20 hidden md:flex flex-col h-full w-72 bg-[#0a0a0a]/80 backdrop-blur-xl border-r border-white/5 shrink-0">
+          <div className="p-8">
+            <Link href="/" className="flex items-center gap-4 mb-2">
+              <img src="/images/sports-club-logo.png" alt="UAI Sports Club" className="h-10 w-auto object-contain opacity-80" />
+              <div className="flex flex-col">
+                <span className="font-sans text-[9px] font-bold uppercase tracking-[0.3em] text-[#D4AF37]">Universal AI</span>
+                <span className="font-display text-lg font-black uppercase text-white tracking-wide">Sports Club</span>
+              </div>
             </Link>
           </div>
           
-          <div className="mt-auto pt-4 border-t border-outline-variant/20 flex flex-col gap-1">
-            <button onClick={() => signOut({ callbackUrl: '/admin/login' })} className="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/10 rounded-lg transition-all duration-200 hover:translate-x-1 w-full text-left">
-              <span className="material-symbols-outlined">logout</span>
-              <span className="font-body-md text-body-md">Sign Out</span>
+          <div className="px-6 pb-6 border-b border-white/5">
+            <h2 className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-white/40 mb-1">
+              Operations Center
+            </h2>
+            <div className="flex items-center gap-2 mt-2">
+               <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+               </span>
+               <span className="font-sans text-[10px] uppercase tracking-widest text-emerald-500 font-bold">System Online</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-col flex-1 overflow-y-auto px-4 py-6 gap-2 hide-scrollbar">
+            {NAV.map(l => {
+              const active = router.pathname.startsWith(l.href);
+              return (
+                <Link 
+                  key={l.href} 
+                  href={l.href} 
+                  className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ${
+                    active 
+                      ? 'bg-gradient-to-r from-[#D4AF37]/10 to-transparent border-l-2 border-[#D4AF37] text-white' 
+                      : 'border-l-2 border-transparent text-white/50 hover:bg-white/5 hover:text-white hover:border-white/20'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>
+                    {l.icon}
+                  </span>
+                  <span className="font-sans text-xs font-bold uppercase tracking-widest">{l.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+          
+          <div className="p-4 border-t border-white/5 bg-[#0a0a0a]">
+            <button 
+              onClick={() => signOut({ callbackUrl: '/admin/login' })} 
+              className="flex items-center justify-between w-full px-4 py-3 text-[#ef4444]/70 hover:bg-[#ef4444]/10 hover:text-[#ef4444] rounded-xl transition-all"
+            >
+              <span className="font-sans text-xs font-bold uppercase tracking-widest">Terminate Session</span>
+              <span className="material-symbols-outlined text-sm">power_settings_new</span>
             </button>
           </div>
         </nav>
 
-        {/* Mobile Top Nav Placeholder */}
-        <nav className="md:hidden flex items-center justify-between p-4 bg-surface-container border-b border-outline-variant/30 sticky top-0 z-50 absolute w-full">
-          <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Admin</h1>
-          <button className="text-on-surface"><span className="material-symbols-outlined">menu</span></button>
+        {/* MOBILE HEADER */}
+        <nav className="md:hidden relative z-20 flex items-center justify-between p-4 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5 absolute w-full top-0">
+          <div className="flex items-center gap-3">
+             <img src="/images/sports-club-logo.png" alt="UAI Sports Club" className="h-8 w-auto object-contain opacity-80" />
+             <h1 className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-white">Operations Center</h1>
+          </div>
+          <button className="text-white/60 hover:text-white transition-colors">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
         </nav>
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-background relative pt-[72px] md:pt-0">
+        {/* CONTENT */}
+        <main className="relative z-10 flex-1 flex flex-col h-full overflow-y-auto bg-transparent pt-[64px] md:pt-0">
+          <div className="flex-1 w-full max-w-[1600px] mx-auto p-6 md:p-12">
             {children}
+          </div>
         </main>
       </div>
     </>

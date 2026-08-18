@@ -1,332 +1,276 @@
-import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import Tilt from "react-parallax-tilt";
-import AnimatedCounter from "@/components/AnimatedCounter";
-import Avatar from "@/components/Avatar";
+import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import Layout from '@/components/Layout';
+import CinematicBackground from '@/components/cinema/CinematicBackground';
+import Reveal from '@/components/cinema/Reveal';
+import { getRankings } from '@/lib/rankings';
 
-export default function Leaderboard() {
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'compact'>('grid');
-
-  const fetchLeaderboard = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/leaderboard?page=${page}&search=${search}`);
-      const data = await res.json();
-      setLeaderboard(data.data);
-      setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+export async function getStaticProps() {
+  const rankings = await getRankings();
+  return {
+    props: { initialRankings: rankings },
+    revalidate: 60,
   };
+}
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [page, search]);
+export default function Leaderboard({ initialRankings }: { initialRankings: any[] }) {
+  const [search, setSearch] = useState('');
+  const [houseFilter, setHouseFilter] = useState('All');
+  
+  const rankings = useMemo(() => {
+    return initialRankings.filter(s => {
+      const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
+      const matchesHouse = houseFilter === 'All' || s.house === houseFilter;
+      return matchesSearch && matchesHouse;
+    });
+  }, [initialRankings, search, houseFilter]);
+
+  const top3 = rankings.slice(0, 3);
+  const rest = rankings.slice(3);
+
+  const houses = ['All', 'Red', 'Blue', 'Green', 'Yellow'];
 
   return (
-    <Layout title="Universal AI University - Athletics Leaderboard">
+    <Layout title="Leaderboard — The Race For Glory">
+      <CinematicBackground tone="race" />
+      
+      <div className="relative z-10 w-full min-h-screen pt-32 pb-24 px-5 md:px-10">
+        <div className="max-w-[1200px] mx-auto flex flex-col items-center">
+          
+          {/* HERO */}
+          <Reveal className="text-center mb-20">
+            <p className="font-sans text-xs font-semibold uppercase tracking-[0.5em] text-[#D4AF37] mb-4">Leaderboard</p>
+            <h1 className="font-display text-5xl md:text-7xl font-black uppercase text-white tracking-tight drop-shadow-2xl">
+              The Race For Glory
+            </h1>
+            <p className="mt-4 font-sans text-sm font-light text-white/50 tracking-widest uppercase">
+              "Every point changes the story."
+            </p>
+          </Reveal>
 
-      <main className="pt-[100px] pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-        {/* Header Section */}
-        <section className="flex flex-col items-center justify-center py-12 md:py-16 gap-6 text-center">
-          <img alt="UAIU Sports Logo" className="w-32 h-32 md:w-48 md:h-48 object-contain" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop"/>
-          <h1 className="font-headline-xl text-headline-lg-mobile md:text-headline-xl text-on-surface">Official Athletics Leaderboard</h1>
-        </section>
+          {/* TOP 3 PODIUM */}
+          {top3.length > 0 && (
+            <div className="w-full flex flex-col md:flex-row justify-center items-end gap-6 md:gap-8 mb-24 h-[500px]">
+              
+              {/* 3rd Place */}
+              {top3[2] && (
+                <PodiumCard athlete={top3[2]} rank={3} delay={0} />
+              )}
+              
+              {/* 1st Place */}
+              {top3[0] && (
+                <PodiumCard athlete={top3[0]} rank={1} delay={0.4} />
+              )}
+              
+              {/* 2nd Place */}
+              {top3[1] && (
+                <PodiumCard athlete={top3[1]} rank={2} delay={0.2} />
+              )}
 
-        {/* Filters & Search */}
-        <section className="mb-12">
-          <div className="bg-surface-container border border-outline-variant/30 rounded-lg p-6">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-end">
-              {/* Filters */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 w-full md:w-auto flex-grow">
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant">Academic Year</label>
-                  <select className="bg-surface border border-outline/30 rounded-md py-2 px-3 text-on-surface focus:ring-primary focus:border-primary">
-                    <option>2023-2024</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant">School</label>
-                  <select className="bg-surface border border-outline/30 rounded-md py-2 px-3 text-on-surface focus:ring-primary focus:border-primary">
-                    <option>All Schools</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant">Sport</label>
-                  <select className="bg-surface border border-outline/30 rounded-md py-2 px-3 text-on-surface focus:ring-primary focus:border-primary">
-                    <option>All Sports</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant">Gender</label>
-                  <select className="bg-surface border border-outline/30 rounded-md py-2 px-3 text-on-surface focus:ring-primary focus:border-primary">
-                    <option>All</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant">Year</label>
-                  <select className="bg-surface border border-outline/30 rounded-md py-2 px-3 text-on-surface focus:ring-primary focus:border-primary">
-                    <option>All Years</option>
-                  </select>
-                </div>
+            </div>
+          )}
+
+          {/* FILTERS */}
+          <Reveal delay={0.6} className="w-full mb-12">
+            <div className="flex flex-col md:flex-row justify-between items-center bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 gap-4">
+              <div className="relative w-full md:w-96">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">search</span>
+                <input
+                  type="text"
+                  placeholder="SEARCH ATHLETE..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full bg-black/40 border border-white/10 rounded-full py-3 pl-12 pr-6 text-sm font-sans uppercase text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50 transition-colors"
+                />
               </div>
               
-              {/* Search */}
-              <div className="w-full md:w-64 mt-4 md:mt-0">
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant">search</span>
-                  <input 
-                    className="w-full bg-surface border border-outline/30 rounded-md py-2 pl-10 pr-3 text-on-surface focus:ring-primary focus:border-primary placeholder:text-on-surface-variant/50" 
-                    placeholder="Search student name or ID" 
-                    type="text"
-                    value={search}
-                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  />
-                </div>
+              <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
+                {houses.map(h => (
+                  <button
+                    key={h}
+                    onClick={() => setHouseFilter(h)}
+                    className={`whitespace-nowrap px-6 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all ${
+                      houseFilter === h 
+                        ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]' 
+                        : 'bg-black/40 text-white/50 border border-white/10 hover:text-white hover:border-white/30'
+                    }`}
+                  >
+                    {h} House
+                  </button>
+                ))}
               </div>
             </div>
-            
-            <div className="flex justify-end mt-4 border-t border-outline/10 pt-4">
-              <div className="flex bg-surface-container-high rounded-lg p-1 border border-outline-variant/30">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary text-on-primary shadow' : 'text-on-surface-variant hover:text-on-surface'}`}
-                >
-                  <span className="material-symbols-outlined text-sm">grid_view</span>
-                  Grid
-                </button>
-                <button 
-                  onClick={() => setViewMode('compact')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md transition-colors ${viewMode === 'compact' ? 'bg-primary text-on-primary shadow' : 'text-on-surface-variant hover:text-on-surface'}`}
-                >
-                  <span className="material-symbols-outlined text-sm">view_list</span>
-                  Compact
-                </button>
+          </Reveal>
+
+          {/* RANKING LIST */}
+          <div className="w-full flex flex-col gap-3">
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/10 font-sans text-[10px] uppercase tracking-widest text-white/30 font-bold">
+              <div className="col-span-1 text-center">Rank</div>
+              <div className="col-span-5 md:col-span-4">Athlete</div>
+              <div className="col-span-3 hidden md:block">School / House</div>
+              <div className="col-span-3 md:col-span-2 text-center">Points</div>
+              <div className="col-span-3 md:col-span-2 text-center">Medals</div>
+            </div>
+
+            <LayoutGroup>
+              <AnimatePresence>
+                {rest.map((athlete) => (
+                  <LeaderboardRow key={athlete.id} athlete={athlete} />
+                ))}
+                {rest.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="py-20 text-center font-sans text-sm uppercase tracking-widest text-white/40"
+                  >
+                    No athletes found in the arena.
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </LayoutGroup>
+          </div>
+
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+function PodiumCard({ athlete, rank, delay }: { athlete: any, rank: number, delay: number }) {
+  const isFirst = rank === 1;
+  const isSecond = rank === 2;
+  const isThird = rank === 3;
+  
+  const heightClass = isFirst ? 'h-[420px] md:h-[480px]' : isSecond ? 'h-[360px] md:h-[400px]' : 'h-[320px] md:h-[360px]';
+  const rankColor = isFirst ? 'text-[#D4AF37]' : isSecond ? 'text-[#e2e8f0]' : 'text-[#b45309]';
+  const rankBorder = isFirst ? 'border-[#D4AF37]/50' : isSecond ? 'border-white/30' : 'border-[#b45309]/50';
+  const glowClass = isFirst ? 'shadow-[0_0_40px_rgba(212,175,55,0.15)]' : '';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay, type: 'spring', damping: 20 }}
+      className={`relative w-full md:w-1/3 rounded-3xl overflow-hidden border bg-[#111] group flex flex-col justify-end ${heightClass} ${rankBorder} ${glowClass}`}
+    >
+      {/* Background Image */}
+      <div className="absolute inset-0 pointer-events-none">
+        <img 
+          src={athlete.photoUrl || `https://images.unsplash.com/photo-${isFirst ? '1552674605-db6ffd4facb5' : isSecond ? '1519861531473-9200262188bf' : '1546519638-68e109498ffc'}?q=80&w=800&auto=format&fit=crop`} 
+          alt={athlete.name}
+          className="w-full h-full object-cover object-top opacity-50 grayscale mix-blend-luminosity group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-700"
+        />
+        <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent`} />
+      </div>
+
+      <div className="relative z-10 p-6 flex flex-col items-center text-center">
+        <span className={`font-display text-5xl md:text-7xl font-black ${rankColor} drop-shadow-lg mb-2`}>
+          {rank}
+        </span>
+        <h3 className="font-display text-2xl font-bold uppercase text-white tracking-wide mb-1">
+          {athlete.name}
+        </h3>
+        <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50 mb-4">
+          {athlete.className} • {athlete.house}
+        </p>
+        <div className="w-full grid grid-cols-2 gap-2 border-t border-white/10 pt-4">
+          <div>
+            <div className="font-display text-2xl font-bold text-white">{athlete.totalPoints}</div>
+            <div className="font-sans text-[9px] uppercase tracking-widest text-white/40">Points</div>
+          </div>
+          <div>
+            <div className="font-display text-2xl font-bold text-white">{athlete.eventsCount}</div>
+            <div className="font-sans text-[9px] uppercase tracking-widest text-white/40">Events</div>
+          </div>
+        </div>
+      </div>
+      
+      {isFirst && (
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#D4AF37]/20 to-transparent pointer-events-none mix-blend-overlay" />
+      )}
+    </motion.div>
+  );
+}
+
+function LeaderboardRow({ athlete }: { athlete: any }) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Link href={`/athlete/${athlete.id}`} className="group relative block w-full bg-[#111]/40 hover:bg-[#111] border border-white/[0.04] hover:border-white/20 rounded-2xl overflow-hidden transition-all duration-300 backdrop-blur-sm">
+        
+        {/* Hover Highlight */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+        <div className="relative grid grid-cols-12 gap-4 items-center px-6 py-5">
+          {/* Rank */}
+          <div className="col-span-1 text-center">
+            <span className="font-display text-xl md:text-2xl font-bold text-white/40 group-hover:text-white transition-colors">
+              {String(athlete.rank).padStart(2, '0')}
+            </span>
+          </div>
+
+          {/* Athlete */}
+          <div className="col-span-5 md:col-span-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-white/10 group-hover:border-[#D4AF37]/50 transition-colors">
+              {athlete.photoUrl ? (
+                <img src={athlete.photoUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#333] to-[#111] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white/30 text-sm">person</span>
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="font-display text-sm md:text-base font-bold uppercase text-white tracking-wide group-hover:text-[#D4AF37] transition-colors">
+                {athlete.name}
+              </div>
+              <div className="font-sans text-[10px] uppercase tracking-widest text-white/40">
+                {athlete.rollNumber}
               </div>
             </div>
           </div>
-        </section>
 
-        {/* Leaderboard List */}
-        {viewMode === 'grid' ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                className="bg-surface-container rounded-lg border-2 border-outline-variant/30 h-[450px] overflow-hidden flex flex-col"
-              >
-                <div className="w-full aspect-[4/5] bg-surface-container-high/50 animate-pulse relative"></div>
-                <div className="bg-[#162A45] p-4 flex justify-between items-center border-t border-outline-variant/30">
-                  <div className="w-16 h-8 bg-surface-container-high/50 animate-pulse rounded"></div>
-                  <div className="w-12 h-4 bg-surface-container-high/50 animate-pulse rounded"></div>
-                </div>
-              </motion.div>
-            ))
-          ) : leaderboard.length === 0 ? (
-            <div className="col-span-full text-center py-10 text-on-surface-variant font-body-lg">
-              No athletes found.
+          {/* School / House */}
+          <div className="col-span-3 hidden md:flex flex-col justify-center">
+            <div className="font-sans text-xs font-semibold uppercase text-white/70 truncate">
+              {athlete.className}
             </div>
-          ) : (
-            leaderboard.map((student: any, index: number) => {
-              const rank = student.rank;
-              const isRank1 = rank === 1;
-              const isRank2 = rank === 2;
-              const isRank3 = rank === 3;
-              
-              // Pseudo-random trend based on ID
-              const hash = student.id.charCodeAt(0) % 3;
-              const trend = hash === 0 ? 'up' : hash === 1 ? 'down' : 'same';
-              
-              let borderColor = "border-outline-variant/30";
-              let shadowColor = "hover:shadow-[4px_4px_0_0_#adc6ff]";
-              let rankBg = "bg-[#162A45]/80";
-              let rankText = "text-on-surface";
-              let rankBorder = "border-2 border-primary";
-              let suffix = "";
-              
-              if (isRank1) {
-                borderColor = "border-rank-gold";
-                shadowColor = "shadow-[4px_4px_0_0_#D4AF37]";
-                rankBg = "bg-rank-gold";
-                rankText = "text-[#000000]";
-                rankBorder = "";
-                suffix = "st";
-              } else if (isRank2) {
-                borderColor = "border-rank-silver";
-                shadowColor = "shadow-[4px_4px_0_0_#C0C0C0]";
-                rankBg = "bg-rank-silver";
-                rankText = "text-[#0A192F]";
-                rankBorder = "";
-                suffix = "nd";
-              } else if (isRank3) {
-                borderColor = "border-rank-bronze";
-                shadowColor = "shadow-[4px_4px_0_0_#CD7F32]";
-                rankBg = "bg-rank-bronze";
-                rankText = "text-[#0A192F]";
-                rankBorder = "";
-                suffix = "rd";
-              } else {
-                suffix = "th";
-              }
-
-              return (
-                <motion.div
-                  key={student.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: (index % 6) * 0.1 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                >
-                  <Link href={`/athlete/${student.slug || student.id}`} className="block">
-                    <Tilt glareEnable={true} glareMaxOpacity={0.1} scale={1.01} transitionSpeed={1500} tiltMaxAngleX={4} tiltMaxAngleY={4}>
-                      <article className={`relative group bg-surface-container rounded-lg border-2 ${borderColor} overflow-hidden ${shadowColor}`}>
-                      
-                      {/* Rank Badge with Trend */}
-                      <div className={`absolute top-4 left-4 z-10 flex items-center shadow-lg`}>
-                        <div className={`${rankBg} ${rankText} ${rankBorder} rounded-l-full w-12 h-12 flex items-center justify-center font-data-tabular text-data-tabular font-bold border-r border-outline-variant/20`}>
-                          {rank}{isRank1 || isRank2 || isRank3 ? suffix : ""}
-                        </div>
-                        <div className={`${rankBg} ${rankText} ${rankBorder} rounded-r-full h-12 px-2 flex items-center justify-center`}>
-                          {trend === 'up' && <span className="material-symbols-outlined text-green-400 text-sm">trending_up</span>}
-                          {trend === 'down' && <span className="material-symbols-outlined text-red-400 text-sm">trending_down</span>}
-                          {trend === 'same' && <span className="material-symbols-outlined text-on-surface-variant text-sm">trending_flat</span>}
-                        </div>
-                      </div>
-
-                      {/* Image */}
-                      <div className="w-full aspect-[4/5] relative">
-                        <Avatar photoUrl={student.photoUrl} name={student.name} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A192F] via-[#0A192F]/60 to-transparent"></div>
-                        
-                        {/* Content Overlay */}
-                    <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-2">
-                      <div className="flex justify-between items-end">
-                        <div>
-                          <h2 className="font-headline-md text-headline-md text-on-surface m-0 leading-tight">{student.name}</h2>
-                          <p className="font-data-tabular text-sm text-on-surface-variant">ID: {student.rollNumber} | {student.className}</p>
-                        </div>
-                      </div>
-                      <p className="font-label-caps text-label-caps text-primary mt-1">{student.house || "School of AI"}</p>
-                    </div>
-                  </div>
-
-                  {/* Stats Bottom */}
-                  <div className={`bg-[#162A45] p-4 flex justify-between items-center border-t border-outline-variant/30`}>
-                    <div className="font-data-tabular text-data-tabular flex items-baseline">
-                      <AnimatedCounter value={student.totalPoints} className={`${isRank1 ? 'text-rank-gold' : 'text-on-surface'} text-2xl font-bold`} />
-                      <span className="text-on-surface-variant text-sm ml-1">Pts</span>
-                    </div>
-                    <div className="flex gap-3 font-data-tabular text-sm text-on-surface">
-                      <span className="flex items-center gap-1 text-on-surface-variant text-xs">
-                        <AnimatedCounter value={student.eventsCount} /> {student.eventsCount === 1 ? 'Event' : 'Events'}
-                      </span>
-                    </div>
-                  </div>
-                    </article>
-                  </Tilt>
-                  </Link>
-                </motion.div>
-              );
-            })
-          )}
-        </section>
-        ) : (
-          <section className="bg-surface-container rounded-xl border border-outline-variant/30 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-surface-container-high border-b border-outline-variant/30">
-                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider">Rank</th>
-                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider">Athlete</th>
-                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider hidden md:table-cell">School</th>
-                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider hidden sm:table-cell">Events</th>
-                    <th className="px-6 py-4 font-label-caps text-on-surface-variant uppercase tracking-wider text-right">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    Array.from({ length: 6 }).map((_, i) => (
-                      <tr key={i} className="border-b border-outline-variant/10">
-                        <td className="px-6 py-4"><div className="w-8 h-8 bg-surface-container-high/50 animate-pulse rounded-full"></div></td>
-                        <td className="px-6 py-4"><div className="w-32 h-6 bg-surface-container-high/50 animate-pulse rounded"></div></td>
-                        <td className="px-6 py-4 hidden md:table-cell"><div className="w-24 h-6 bg-surface-container-high/50 animate-pulse rounded"></div></td>
-                        <td className="px-6 py-4 hidden sm:table-cell"><div className="w-16 h-6 bg-surface-container-high/50 animate-pulse rounded"></div></td>
-                        <td className="px-6 py-4 text-right"><div className="w-12 h-6 bg-surface-container-high/50 animate-pulse rounded ml-auto"></div></td>
-                      </tr>
-                    ))
-                  ) : leaderboard.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-10 text-center text-on-surface-variant font-body-lg">No athletes found.</td>
-                    </tr>
-                  ) : (
-                    leaderboard.map((student: any) => {
-                      const hash = student.id.charCodeAt(0) % 3;
-                      const trend = hash === 0 ? 'up' : hash === 1 ? 'down' : 'same';
-                      return (
-                        <tr key={student.id} className="border-b border-outline-variant/10 hover:bg-surface-container-highest transition-colors group">
-                          <td className="px-6 py-3 font-data-tabular">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-lg w-6">{student.rank}</span>
-                              {trend === 'up' && <span className="material-symbols-outlined text-green-400 text-sm" title="Up from last week">trending_up</span>}
-                              {trend === 'down' && <span className="material-symbols-outlined text-red-400 text-sm" title="Down from last week">trending_down</span>}
-                              {trend === 'same' && <span className="material-symbols-outlined text-on-surface-variant text-sm" title="No change">trending_flat</span>}
-                            </div>
-                          </td>
-                          <td className="px-6 py-3">
-                            <Link href={`/athlete/${student.slug || student.id}`} className="flex items-center gap-3 hover:text-primary transition-colors">
-                              <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30 flex-shrink-0">
-                                <Avatar photoUrl={student.photoUrl} name={student.name} className="w-full h-full object-cover text-xs" />
-                              </div>
-                              <div>
-                                <div className="font-headline-md font-bold text-on-surface group-hover:text-primary transition-colors">{student.name}</div>
-                                <div className="font-data-tabular text-xs text-on-surface-variant">{student.rollNumber}</div>
-                              </div>
-                            </Link>
-                          </td>
-                          <td className="px-6 py-3 font-body-md text-on-surface-variant hidden md:table-cell">{student.className}</td>
-                          <td className="px-6 py-3 font-data-tabular hidden sm:table-cell">{student.eventsCount}</td>
-                          <td className="px-6 py-3 font-data-tabular font-bold text-primary text-right text-lg">{student.totalPoints}</td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+            <div className="font-sans text-[10px] uppercase tracking-widest text-white/40">
+              {athlete.house} House
             </div>
-          </section>
-        )}
+          </div>
 
-        {/* Load More */}
-        <div className="mt-12 flex justify-center gap-4">
-          <button 
-            disabled={page === 1}
-            onClick={() => setPage((p: number) => p - 1)}
-            className="bg-surface-container hover:bg-surface-container-high border border-outline/30 text-on-surface font-headline-md text-sm font-bold py-3 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button 
-            disabled={page >= totalPages || leaderboard.length === 0}
-            onClick={() => setPage((p: number) => p + 1)}
-            className="bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-md text-sm font-bold py-3 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50"
-          >
-            Next Page
-          </button>
+          {/* Points */}
+          <div className="col-span-3 md:col-span-2 flex flex-col items-center justify-center">
+            <div className="font-display text-xl font-bold text-white group-hover:text-[#D4AF37] transition-colors">
+              {athlete.totalPoints}
+            </div>
+          </div>
+
+          {/* Medals */}
+          <div className="col-span-3 md:col-span-2 flex items-center justify-center gap-2">
+             <div className="flex items-center gap-1">
+               <span className="text-[#D4AF37] text-sm">🥇</span>
+               <span className="font-display text-sm font-bold text-white/80">{athlete.medals.gold}</span>
+             </div>
+             <div className="flex items-center gap-1">
+               <span className="text-[#e2e8f0] text-sm">🥈</span>
+               <span className="font-display text-sm font-bold text-white/80">{athlete.medals.silver}</span>
+             </div>
+             <div className="flex items-center gap-1">
+               <span className="text-[#b45309] text-sm">🥉</span>
+               <span className="font-display text-sm font-bold text-white/80">{athlete.medals.bronze}</span>
+             </div>
+          </div>
+
         </div>
-      </main>
-
-    </Layout>
+      </Link>
+    </motion.div>
   );
 }
