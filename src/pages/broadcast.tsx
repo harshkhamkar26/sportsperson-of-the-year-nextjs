@@ -9,12 +9,20 @@ import CheerButton, { CHEER_CONFIG, CheerType } from "@/components/broadcast/Che
 import CheerTicker from "@/components/broadcast/CheerTicker";
 import CrowdEnergy from "@/components/broadcast/CrowdEnergy";
 
+import { getRankings } from "@/lib/rankings";
+
 export async function getServerSideProps() {
   try {
     const broadcast = await getLiveBroadcast();
+    const rankings = await getRankings();
+    
+    // Get top 5 overall leaders
+    const topLeaders = rankings.slice(0, 5);
+
     return {
       props: {
         broadcast: broadcast ? JSON.parse(JSON.stringify(broadcast)) : null,
+        leaders: JSON.parse(JSON.stringify(topLeaders)),
       },
     };
   } catch (error) {
@@ -22,6 +30,7 @@ export async function getServerSideProps() {
     return {
       props: {
         broadcast: null,
+        leaders: [],
       },
     };
   }
@@ -59,7 +68,7 @@ interface BroadcastData {
   viewerSessionCount: number;
 }
 
-export default function BroadcastPage({ broadcast }: { broadcast: BroadcastData | null }) {
+export default function BroadcastPage({ broadcast, leaders = [] }: { broadcast: BroadcastData | null, leaders?: any[] }) {
   const [unlocked, setUnlocked] = useState(false);
   const [cheers, setCheers] = useState<Cheer[]>(broadcast?.recentCheers || []);
   const [cheerCount, setCheerCount] = useState(broadcast?.cheerCount || 0);
@@ -259,6 +268,38 @@ export default function BroadcastPage({ broadcast }: { broadcast: BroadcastData 
 
             {/* Sidebar (4 cols) */}
             <div className="lg:col-span-4 flex flex-col gap-6">
+              
+              {/* Top Student Leaders */}
+              {leaders && leaders.length > 0 && (
+                <div className="rounded-2xl border border-[#D4AF37]/30 bg-[#111]/80 p-6 backdrop-blur-md shadow-[0_0_20px_rgba(212,175,55,0.15)] relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                    <span className="material-symbols-outlined text-8xl">emoji_events</span>
+                  </div>
+                  <h3 className="font-display text-sm font-bold uppercase text-[#D4AF37] mb-4 tracking-widest flex items-center gap-2 relative z-10">
+                    <span className="material-symbols-outlined text-sm">leaderboard</span>
+                    Championship Leaders
+                  </h3>
+                  <div className="space-y-3 relative z-10">
+                    {leaders.map((leader, idx) => (
+                      <div key={leader.id} className="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${idx === 0 ? 'bg-[#D4AF37] text-black shadow-[0_0_10px_rgba(212,175,55,0.5)]' : idx === 1 ? 'bg-slate-300 text-black' : idx === 2 ? 'bg-amber-600 text-white' : 'bg-white/10 text-white/60'}`}>
+                            #{idx + 1}
+                          </div>
+                          <div>
+                            <div className="font-bold text-white text-sm">{leader.name}</div>
+                            <div className="text-[10px] text-white/50 uppercase tracking-wide">{leader.school?.name || leader.rollNumber}</div>
+                          </div>
+                        </div>
+                        <div className="font-display font-black text-lg text-[#D4AF37]">
+                          {leader.totalPoints}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Current Score */}
               <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-6 backdrop-blur-sm">
                 <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-4 tracking-widest">
