@@ -1,251 +1,317 @@
-import React from "react";
-import { useSession, signOut } from "next-auth/react";
-import Head from "next/head";
+import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "@/components/AdminLayout";
+import { prisma } from "@/lib/prisma";
 
-export default function AdminResults() {
+export async function getServerSideProps() {
+  const [events, students] = await Promise.all([
+    prisma.event.findMany({ orderBy: { date: 'desc' }, include: { sport: true } }),
+    prisma.student.findMany({ orderBy: { name: 'asc' } }),
+  ]);
+  
+  return {
+    props: {
+      events: JSON.parse(JSON.stringify(events)),
+      students: JSON.parse(JSON.stringify(students)),
+    },
+  };
+}
+
+export default function ResultsManagement({ events, students }: any) {
   const { data: session, status } = useSession({ required: true, onUnauthenticated() { router.push('/admin/login'); } });
   const router = useRouter();
 
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [participants, setParticipants] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingParticipant, setEditingParticipant] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    studentId: "",
+    status: "REGISTERED",
+    placement: "",
+    points: 0,
+  });
+
+  const fetchParticipants = async (eventId: string) => {
+    if (!eventId) {
+      setParticipants([]);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/event-participants?eventId=${eventId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setParticipants(data.data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchParticipants(selectedEventId);
+  }, [selectedEventId]);
+
+  const handleCreate = () => {
+    setEditingParticipant(null);
+    setFormData({ studentId: "", status: "REGISTERED", placement: "", points: 0 });
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (participant: any) => {
+    setEditingParticipant(participant);
+    setFormData({
+      studentId: participant.studentId,
+      status: participant.status || "REGISTERED",
+      placement: participant.placement || "",
+      points: participant.points || 0,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this result/participant? This will undo their points.")) return;
+    try {
+      const res = await fetch(`/api/event-participants?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchParticipants(selectedEventId);
+      } else {
+        alert("Failed to delete result");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const url = "/api/event-participants";
+      const method = editingParticipant ? "PUT" : "POST";
+      const body = editingParticipant 
+        ? { id: editingParticipant.id, ...formData, eventId: selectedEventId, placement: formData.placement ? parseInt(formData.placement as string) : null, points: Number(formData.points) }
+        : { ...formData, eventId: selectedEventId, placement: formData.placement ? parseInt(formData.placement as string) : null, points: Number(formData.points) };
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        setIsModalOpen(false);
+        fetchParticipants(selectedEventId);
+      } else {
+        const error = await res.json();
+        alert(`Failed to save: ${error.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error saving result");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (status === "loading") {
-    return <div className="min-h-screen bg-surface-container-lowest flex items-center justify-center text-on-surface">Loading...</div>;
+    return <div className="min-h-screen bg-[#121212] flex items-center justify-center text-white">Loading...</div>;
   }
 
-  return (
-    <AdminLayout title="Record New Result - Admin Portal">
-      <div className="flex-1 overflow-y-auto w-full">
+  const selectedEvent = events.find((e: any) => e.id === selectedEventId);
 
+  return (
+    <AdminLayout title="Results Management - Sports Command Center">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#0D0E12]">
+        <div className="max-w-7xl mx-auto flex flex-col gap-8">
           
-          {/* Header */}
-          <header className="h-24 md:h-20 flex flex-col md:flex-row items-start md:items-center justify-between px-margin-mobile md:px-margin-desktop py-4 md:py-0 border-b border-outline-variant/20 shrink-0 relative z-10 bg-surface-container-lowest/80 backdrop-blur-md">
-            <div className="mb-4 md:mb-0">
-              <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-on-surface tracking-tight">Record New Result</h1>
-              <p className="font-body-md text-sm md:text-body-md text-on-surface-variant mt-1">Select event and assign points accurately.</p>
+          <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-extrabold text-white tracking-tight">Results & Participants</h1>
+              <p className="text-white/60 mt-1">Record match results and automatically update championship points.</p>
             </div>
-            <div className="flex gap-4 w-full md:w-auto">
-              <button className="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-headline-md text-[14px] hover:text-on-surface hover:bg-surface-container-high transition-colors w-1/2 md:w-auto">Cancel</button>
-              <button className="px-6 py-2 rounded-lg bg-primary text-on-primary font-headline-md text-[14px] shadow-[0_4px_0_0_#004395] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#004395] transition-all active:translate-y-[4px] active:shadow-none font-bold w-1/2 md:w-auto">Save Result</button>
-            </div>
+            {selectedEventId && (
+              <button 
+                onClick={handleCreate}
+                className="px-6 py-2 bg-[#D4AF37] text-black font-bold rounded-lg shadow-lg hover:bg-white transition-colors"
+              >
+                + Add Result
+              </button>
+            )}
           </header>
 
-          {/* Form Canvas */}
-          <div className="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop">
-            <div className="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
-              {/* Left Column: Multi-step Form (8 cols) */}
-              <div className="lg:col-span-8 flex flex-col gap-6">
-                
-                {/* Progress Tracker */}
-                <div className="flex items-center justify-between px-4 py-2 bg-surface-container rounded-full border border-outline-variant/30 mb-2 overflow-x-auto hide-scrollbar">
-                  <div className="flex items-center gap-2 text-primary shrink-0">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 font-label-caps text-[12px]">1</span>
-                    <span className="font-label-caps text-label-caps hidden sm:inline">Event</span>
-                  </div>
-                  <div className="h-px bg-outline-variant/50 flex-1 mx-4 min-w-[20px]"></div>
-                  <div className="flex items-center gap-2 text-primary shrink-0">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 font-label-caps text-[12px]">2</span>
-                    <span className="font-label-caps text-label-caps hidden sm:inline">Athletes</span>
-                  </div>
-                  <div className="h-px bg-outline-variant/50 flex-1 mx-4 min-w-[20px]"></div>
-                  <div className="flex items-center gap-2 text-primary shrink-0">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary font-bold text-on-primary font-label-caps text-[12px]">3</span>
-                    <span className="font-label-caps text-label-caps text-on-surface font-bold">Results</span>
-                  </div>
-                </div>
-
-                {/* Step 3: Enter Results (Currently Active View) */}
-                <section className="bg-surface-container/50 backdrop-blur-md rounded-xl p-4 md:p-6 border-l-4 border-l-primary border border-outline-variant/20 shadow-lg relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-                    <span className="material-symbols-outlined text-[120px]">emoji_events</span>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row justify-between sm:items-end mb-6 relative z-10 gap-4">
-                    <div>
-                      <h3 className="font-headline-md text-[20px] md:text-headline-md text-on-surface">Assign Positions</h3>
-                      <p className="text-on-surface-variant font-body-md mt-1">100m Sprint - Men's Final</p>
-                    </div>
-                    <div className="bg-surface-container-high px-3 py-1 rounded border border-outline-variant/30 w-fit">
-                      <span className="font-label-caps text-[12px] md:text-label-caps text-primary">8 Athletes Selected</span>
-                    </div>
-                  </div>
-
-                  {/* Data Table for Results Input */}
-                  <div className="overflow-x-auto w-full">
-                    <table className="w-full text-left border-collapse min-w-[500px]">
-                      <thead>
-                        <tr className="border-b border-white/10 font-label-caps text-[12px] md:text-label-caps text-on-surface-variant">
-                          <th className="py-3 px-2 w-16">Rank</th>
-                          <th className="py-3 px-4">Athlete</th>
-                          <th className="py-3 px-4 w-32">Time/Score</th>
-                          <th className="py-3 px-4 w-16 text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {/* Row 1: Gold */}
-                        <tr className="border-b border-white/5 hover:bg-surface-container-high/30 transition-colors group">
-                          <td className="py-3 px-2">
-                            <div className="w-8 h-8 rounded-full bg-rank-gold flex items-center justify-center text-[#000] font-data-tabular font-bold shadow-[0_0_8px_rgba(212,175,55,0.4)]">1</div>
-                          </td>
-                          <td className="py-3 px-4 flex items-center gap-3">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-outline-variant/30 shrink-0">
-                              <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1519861531473-9200262188bf?q=80&w=800&auto=format&fit=crop" alt="Marcus Johnson" />
-                            </div>
-                            <div>
-                              <div className="font-headline-md text-[14px] md:text-[16px] text-on-surface">Marcus Johnson</div>
-                              <div className="font-label-caps text-[10px] md:text-[12px] text-on-surface-variant">Computer Science</div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <input className="w-full bg-surface-container border border-outline-variant/50 rounded px-2 py-1 text-on-surface font-data-tabular text-data-tabular focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" defaultValue="9.85s"/>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button className="text-outline hover:text-error transition-colors p-1"><span className="material-symbols-outlined text-[20px]">close</span></button>
-                          </td>
-                        </tr>
-                        
-                        {/* Row 2: Silver */}
-                        <tr className="border-b border-white/5 hover:bg-surface-container-high/30 transition-colors group">
-                          <td className="py-3 px-2">
-                            <div className="w-8 h-8 rounded-full bg-rank-silver flex items-center justify-center text-[#000] font-data-tabular font-bold shadow-[0_0_8px_rgba(192,192,192,0.4)]">2</div>
-                          </td>
-                          <td className="py-3 px-4 flex items-center gap-3">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-outline-variant/30 shrink-0">
-                              <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=800&auto=format&fit=crop" alt="David Chen" />
-                            </div>
-                            <div>
-                              <div className="font-headline-md text-[14px] md:text-[16px] text-on-surface">David Chen</div>
-                              <div className="font-label-caps text-[10px] md:text-[12px] text-on-surface-variant">Engineering</div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <input className="w-full bg-surface-container border border-outline-variant/50 rounded px-2 py-1 text-on-surface font-data-tabular text-data-tabular focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" defaultValue="9.92s"/>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button className="text-outline hover:text-error transition-colors p-1"><span className="material-symbols-outlined text-[20px]">close</span></button>
-                          </td>
-                        </tr>
-
-                        {/* Row 3: Bronze */}
-                        <tr className="border-b border-white/5 hover:bg-surface-container-high/30 transition-colors group">
-                          <td className="py-3 px-2">
-                            <div className="w-8 h-8 rounded-full bg-rank-bronze flex items-center justify-center text-[#fff] font-data-tabular font-bold shadow-[0_0_8px_rgba(205,127,50,0.4)]">3</div>
-                          </td>
-                          <td className="py-3 px-4 flex items-center gap-3">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-outline-variant/30 shrink-0">
-                              <img className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?q=80&w=800&auto=format&fit=crop" alt="Elijah Williams" />
-                            </div>
-                            <div>
-                              <div className="font-headline-md text-[14px] md:text-[16px] text-on-surface">Elijah Williams</div>
-                              <div className="font-label-caps text-[10px] md:text-[12px] text-on-surface-variant">Business</div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <input className="w-full bg-surface-container border border-outline-variant/50 rounded px-2 py-1 text-on-surface font-data-tabular text-data-tabular focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" defaultValue="10.05s"/>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button className="text-outline hover:text-error transition-colors p-1"><span className="material-symbols-outlined text-[20px]">close</span></button>
-                          </td>
-                        </tr>
-
-                        {/* Row 4: Unassigned */}
-                        <tr className="hover:bg-surface-container-high/30 transition-colors group">
-                          <td className="py-3 px-2">
-                            <div className="w-8 h-8 rounded-full border border-primary text-primary flex items-center justify-center font-data-tabular font-bold">4</div>
-                          </td>
-                          <td className="py-3 px-4 flex items-center gap-3">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-outline-variant/30 bg-surface-container-high flex items-center justify-center shrink-0">
-                              <span className="material-symbols-outlined text-outline">person</span>
-                            </div>
-                            <div>
-                              <div className="font-headline-md text-[14px] md:text-[16px] text-on-surface-variant italic">Select Athlete...</div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <input className="w-full bg-surface-container/50 border border-outline-variant/30 rounded px-2 py-1 text-on-surface-variant font-data-tabular text-data-tabular focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="--.--" type="text"/>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button className="text-primary hover:text-primary-fixed-dim transition-colors flex items-center justify-center gap-1 font-label-caps text-[12px] mx-auto">
-                              <span className="material-symbols-outlined text-[16px]">add_circle</span> Add
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-white/5 flex justify-center">
-                    <button className="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 font-label-caps text-[12px] md:text-label-caps">
-                      <span className="material-symbols-outlined">expand_more</span> Show 4 Remaining Athletes
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Event Selector */}
+            <div className="lg:col-span-1 flex flex-col gap-4">
+              <div className="bg-[#1A1C23] border border-white/5 rounded-2xl p-6 shadow-xl">
+                <h3 className="text-lg font-bold text-white mb-4">1. Select Event</h3>
+                <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto pr-2">
+                  {events.map((event: any) => (
+                    <button
+                      key={event.id}
+                      onClick={() => setSelectedEventId(event.id)}
+                      className={`text-left p-4 rounded-xl border transition-all ${selectedEventId === event.id ? 'bg-[#D4AF37]/10 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.15)]' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
+                    >
+                      <div className="text-xs font-bold text-white/40 tracking-widest uppercase mb-1">{new Date(event.date).toLocaleDateString()}</div>
+                      <div className={`font-bold ${selectedEventId === event.id ? 'text-[#D4AF37]' : 'text-white'}`}>{event.name}</div>
+                      <div className="text-sm text-white/60 mt-1">{event.category || 'Open Category'}</div>
                     </button>
-                  </div>
-                </section>
-              </div>
-              
-              {/* Right Column: Points Preview Card (4 cols) */}
-              <div className="lg:col-span-4 lg:sticky lg:top-4 pb-8">
-                <div className="bg-surface-container/50 backdrop-blur-md rounded-xl border border-primary/30 overflow-hidden flex flex-col shadow-[0_8px_32px_rgba(0,90,194,0.15)]">
-                  {/* Card Header */}
-                  <div className="bg-primary-container/20 p-5 border-b border-primary/20">
-                    <h3 className="font-headline-md text-[18px] md:text-[20px] font-bold text-primary flex items-center gap-2">
-                      <span className="material-symbols-outlined">calculate</span>
-                      Points Preview
-                    </h3>
-                    <p className="font-body-md text-[12px] md:text-[14px] text-on-surface-variant mt-1">Live calculation based on current positions.</p>
-                  </div>
-                  
-                  {/* Card Body */}
-                  <div className="p-5 flex flex-col gap-4">
-                    {/* Marcus preview */}
-                    <div className="bg-surface-container rounded-lg p-4 border border-outline-variant/20 hover:border-rank-gold/50 transition-colors">
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-rank-gold shadow-[0_0_4px_#D4AF37]"></div>
-                          <span className="font-headline-md text-[14px] font-bold text-on-surface">M. Johnson</span>
-                        </div>
-                        <span className="font-data-tabular text-[14px] text-rank-gold font-bold">1st</span>
-                      </div>
-                      <div className="flex flex-col gap-1 font-data-tabular text-[12px] text-on-surface-variant">
-                        <div className="flex justify-between"><span>Participation</span> <span>+10</span></div>
-                        <div className="flex justify-between"><span>Rank (Gold)</span> <span>+50</span></div>
-                        <div className="flex justify-between text-success"><span>Record Bonus</span> <span>+5</span></div>
-                        <div className="h-px bg-outline-variant/30 my-1"></div>
-                        <div className="flex justify-between font-bold text-[14px] text-on-surface"><span>Total</span> <span>65 pts</span></div>
-                      </div>
-                    </div>
-                    
-                    {/* David preview */}
-                    <div className="bg-surface-container rounded-lg p-4 border border-outline-variant/20 hover:border-rank-silver/50 transition-colors">
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-rank-silver shadow-[0_0_4px_#C0C0C0]"></div>
-                          <span className="font-headline-md text-[14px] font-bold text-on-surface">D. Chen</span>
-                        </div>
-                        <span className="font-data-tabular text-[14px] text-rank-silver font-bold">2nd</span>
-                      </div>
-                      <div className="flex flex-col gap-1 font-data-tabular text-[12px] text-on-surface-variant">
-                        <div className="flex justify-between"><span>Participation</span> <span>+10</span></div>
-                        <div className="flex justify-between"><span>Rank (Silver)</span> <span>+30</span></div>
-                        <div className="h-px bg-outline-variant/30 my-1"></div>
-                        <div className="flex justify-between font-bold text-[14px] text-on-surface"><span>Total</span> <span>40 pts</span></div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Card Footer */}
-                  <div className="bg-surface-container-low p-4 border-t border-outline-variant/20 mt-auto">
-                    <div className="flex justify-between items-center font-label-caps text-[12px]">
-                      <span className="text-on-surface-variant">Rule Applied:</span>
-                      <span className="text-primary font-bold">Standard Track</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
+            </div>
 
+            {/* Results Table */}
+            <div className="lg:col-span-2">
+              <div className="bg-[#1A1C23] border border-white/5 rounded-2xl overflow-hidden shadow-xl min-h-[400px] flex flex-col">
+                {!selectedEventId ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-white/30 p-12">
+                    <span className="material-symbols-outlined text-6xl mb-4 opacity-50">emoji_events</span>
+                    <p className="text-lg font-bold">Select an event to view or add results</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="p-6 border-b border-white/5 bg-black/20">
+                      <div className="text-xs font-bold text-[#D4AF37] tracking-widest uppercase mb-1">{selectedEvent?.sport?.name}</div>
+                      <h2 className="text-2xl font-bold text-white">{selectedEvent?.name} Results</h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-black/40 text-[10px] font-bold tracking-widest text-white/50 uppercase border-b border-white/10">
+                            <th className="py-4 px-6">Athlete</th>
+                            <th className="py-4 px-6">Status</th>
+                            <th className="py-4 px-6 text-center">Placement</th>
+                            <th className="py-4 px-6 text-right">Points</th>
+                            <th className="py-4 px-6 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="text-sm">
+                          {isLoading ? (
+                            <tr><td colSpan={5} className="py-12 text-center text-white/40">Loading participants...</td></tr>
+                          ) : participants.length === 0 ? (
+                            <tr><td colSpan={5} className="py-12 text-center text-white/40">No participants recorded yet.</td></tr>
+                          ) : (
+                            participants.map(p => (
+                              <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                                <td className="py-4 px-6">
+                                  <div className="font-bold text-white">{p.student?.name}</div>
+                                  <div className="text-xs text-white/50 font-data-tabular">{p.student?.rollNumber}</div>
+                                </td>
+                                <td className="py-4 px-6">
+                                  <span className={`text-xs px-2 py-1 rounded font-bold ${p.status === 'WINNER' ? 'bg-[#D4AF37]/20 text-[#D4AF37]' : p.status === 'PARTICIPATED' ? 'bg-blue-500/20 text-blue-400' : p.status === 'DISQUALIFIED' ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white/60'}`}>
+                                    {p.status}
+                                  </span>
+                                </td>
+                                <td className="py-4 px-6 text-center font-bold text-white">
+                                  {p.placement ? `#${p.placement}` : '-'}
+                                </td>
+                                <td className="py-4 px-6 text-right font-data-tabular font-bold text-[#D4AF37]">
+                                  {p.points > 0 ? `+${p.points}` : '0'}
+                                </td>
+                                <td className="py-4 px-6 text-right">
+                                  <button onClick={() => handleEdit(p)} className="text-blue-400 hover:text-blue-300 text-sm font-bold mr-4">Edit</button>
+                                  <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-300 text-sm font-bold">Undo</button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        
+        </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#1A1C23] border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
+              <h2 className="text-xl font-bold text-white">{editingParticipant ? "Edit Result" : "Add Result"}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-white/40 hover:text-white">✕</button>
+            </div>
+            
+            <form onSubmit={handleSave} className="p-6 flex flex-col gap-4">
+              <div>
+                <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Athlete</label>
+                <select 
+                  required 
+                  disabled={!!editingParticipant}
+                  value={formData.studentId} 
+                  onChange={e => setFormData({...formData, studentId: e.target.value})} 
+                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none disabled:opacity-50"
+                >
+                  <option value="">Select Athlete</option>
+                  {students.map((s: any) => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.rollNumber})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Status</label>
+                <select 
+                  required 
+                  value={formData.status} 
+                  onChange={e => setFormData({...formData, status: e.target.value})} 
+                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none"
+                >
+                  <option value="REGISTERED">Registered</option>
+                  <option value="PARTICIPATED">Participated</option>
+                  <option value="WINNER">Winner</option>
+                  <option value="DISQUALIFIED">Disqualified</option>
+                  <option value="WITHDRAWN">Withdrawn</option>
+                  <option value="ABSENT">Absent</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Placement (Optional)</label>
+                  <input 
+                    type="number" 
+                    placeholder="e.g. 1" 
+                    value={formData.placement} 
+                    onChange={e => setFormData({...formData, placement: e.target.value})} 
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Championship Points</label>
+                  <input 
+                    type="number" 
+                    required
+                    placeholder="0" 
+                    value={formData.points} 
+                    onChange={e => setFormData({...formData, points: parseFloat(e.target.value) || 0})} 
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none font-bold text-[#D4AF37]" 
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-4">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2 border border-white/20 rounded-lg text-white hover:bg-white/10 font-bold">Cancel</button>
+                <button type="submit" disabled={isSaving} className="px-6 py-2 bg-[#D4AF37] text-black font-bold rounded-lg hover:bg-white disabled:opacity-50">
+                  {isSaving ? "Saving..." : "Save Result"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
