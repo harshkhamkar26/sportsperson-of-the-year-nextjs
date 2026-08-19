@@ -51,7 +51,7 @@ export default function Home({
       <CinematicBackground tone="arena" />
       <div className="relative z-10">
         {/* ============ HERO — ENTER THE ARENA ============ */}
-        <section className="relative flex min-h-[92vh] flex-col justify-center overflow-hidden">
+        <section className="relative flex min-h-[92vh] flex-col justify-center overflow-hidden pt-20 md:pt-28">
           <motion.div
             style={{ y: heroParallax }}
             className="absolute inset-0 pointer-events-none"
