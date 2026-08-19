@@ -7,9 +7,9 @@ import { motion, useReducedMotion } from 'framer-motion';
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/leaderboard', label: 'Leaderboard' },
-  { href: '/sports', label: 'Sports' },
-  { href: '/teams', label: 'Teams' },
-  { href: '/live', label: 'Live' },
+  { href: '/schools', label: 'Schools' },
+  { href: '/broadcast', label: 'Broadcast' },
+  { href: '/athletes', label: 'Athletes' },
 ];
 
 /**
@@ -72,7 +72,7 @@ export default function Layout({ children, title = 'Universal AI University Athl
 
             {!onSpoty && (
               <div className="flex items-center gap-2">
-                <Link href="/live" className="hidden items-center gap-2 rounded-full border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ef4444]/20 xl:flex">
+                <Link href="/broadcast" className="hidden items-center gap-2 rounded-full border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ef4444]/20 xl:flex">
                   <span className="h-2 w-2 rounded-full bg-[#ef4444]">
                     <motion.span
                       className="block h-2 w-2 rounded-full bg-[#ef4444]"
@@ -116,7 +116,8 @@ export default function Layout({ children, title = 'Universal AI University Athl
               <div className="grid gap-y-3">
                 <Link href="/" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Home</Link>
                 <Link href="/leaderboard" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Leaderboard</Link>
-                <Link href="/live" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Live Broadcast</Link>
+                <Link href="/broadcast" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Broadcast</Link>
+                <Link href="/schools" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Schools</Link>
                 <Link href="/spoty" className="font-sans text-sm font-semibold text-[#D4AF37] transition-colors hover:text-white">SPOTY</Link>
               </div>
             </div>

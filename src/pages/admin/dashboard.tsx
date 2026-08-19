@@ -1,187 +1,504 @@
-import React, { useState, useRef } from "react";
-import { useSession, signOut } from "next-auth/react";
-import Head from "next/head";
-import Papa from "papaparse";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import AdminLayout from "../../components/AdminLayout";
-import { motion, AnimatePresence } from "framer-motion";
+import AdminLayout from "@/components/AdminLayout";
+import { motion } from "framer-motion";
+
+interface Overview {
+  athletes: number;
+  events: number;
+  activeSports: number;
+  totalParticipations: number;
+  totalPoints: number;
+  goldMedals: number;
+  liveEvent: {
+    title: string;
+    eventName: string;
+    status: string;
+  } | null;
+}
+
+interface ChartData {
+  month: string;
+  points: number;
+}
+
+interface ParticipationData {
+  month: string;
+  count: number;
+}
+
+interface MedalData {
+  sport: string;
+  gold: number;
+  silver: number;
+  bronze: number;
+}
+
+interface DimensionData {
+  [key: string]: number;
+}
+
+interface AnalyticsData {
+  overview: Overview;
+  charts: {
+    pointsByMonth: ChartData[];
+    participationByMonth: ParticipationData[];
+    medalsBySport: MedalData[];
+    participationByGender: DimensionData[];
+    participationBySchool: DimensionData[];
+    participationByHouse: DimensionData[];
+  };
+}
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession({ required: true, onUnauthenticated() { router.push('/admin/login'); } });
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [eventId, setEventId] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [validationErrors, setValidationErrors] = useState<{row: number, error: string}[]>([]);
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push("/admin/login");
+    },
+  });
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-      setError("");
-      setSuccess("");
-      setValidationErrors([]);
-    }
-  };
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
 
-  const handleUpload = async () => {
-    if (!eventId) {
-      setError("Please specify a target Event ID.");
-      return;
-    }
+  const fetchAnalytics = async () => {
     setLoading(true);
-    // Simulation of parsing the new CSV format
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/analytics");
+      if (res.ok) {
+        const data = await res.json();
+        setAnalytics(data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
       setLoading(false);
-      setSuccess("Successfully processed 150 rows. Data synchronized with Leaderboard.");
-    }, 2000);
+    }
   };
+
+  if (status === "loading" || loading) {
+    return (
+      <AdminLayout title="Command Center | Sports OS">
+        <div className="flex items-center justify-center py-20 text-white/50">
+          Loading analytics...
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <AdminLayout title="Command Center | Sports OS">
+        <div className="flex items-center justify-center py-20 text-white/50">
+          Failed to load analytics.
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  const { overview, charts } = analytics;
 
   return (
-    <AdminLayout title="Data Center | Operations">
+    <AdminLayout title="Command Center | Sports OS">
       <div className="flex flex-col gap-8 pb-20">
-        
-        {/* PAGE HEADER */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
           <div>
-            <h1 className="font-display text-4xl font-black uppercase text-white tracking-wide mb-2">Data Center</h1>
+            <h1 className="font-display text-4xl font-black uppercase text-white tracking-wide mb-2">
+              Sports Command Center
+            </h1>
             <p className="font-sans text-xs font-semibold uppercase tracking-widest text-white/40">
-              Bulk Data Ingestion & Validation
+              Real-time analytics and operational overview
             </p>
           </div>
-          <button className="flex items-center justify-center gap-2 px-6 py-3 bg-[#D4AF37] hover:bg-[#D4AF37]/80 text-black font-sans text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
-            <span className="material-symbols-outlined text-[18px]">cloud_download</span>
-            Export All Data
+          <button
+            onClick={fetchAnalytics}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#3B82F6]/80 text-white font-sans text-xs font-bold uppercase tracking-widest rounded-xl transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+            Refresh Data
           </button>
         </div>
 
-        {/* QUICK STATS */}
+        {/* Live Event Banner */}
+        {overview.liveEvent && (
+          <motion.div
+            className="rounded-2xl border border-[#ef4444]/30 bg-[#ef4444]/10 p-6 flex items-center justify-between"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-2 rounded-full bg-[#ef4444]/20 border border-[#ef4444]/40 px-4 py-1.5 font-sans text-xs font-bold uppercase tracking-widest text-[#ef4444]">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ef4444] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ef4444]"></span>
+                </span>
+                LIVE
+              </span>
+              <span className="font-display text-xl font-bold text-white">
+                {overview.liveEvent.title}
+              </span>
+              <span className="font-sans text-sm text-white/50">
+                {overview.liveEvent.eventName}
+              </span>
+            </div>
+            <Link
+              href="/broadcast"
+              className="px-4 py-2 bg-[#D4AF37] text-black font-sans text-xs font-bold uppercase rounded-xl hover:bg-[#D4AF37]/80 transition-colors"
+            >
+              View Broadcast
+            </Link>
+          </motion.div>
+        )}
+
+        {/* Overview Stats */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#111] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
-            <div className="absolute -right-4 -top-4 text-emerald-500/10 group-hover:text-emerald-500/20 transition-colors">
-              <span className="material-symbols-outlined !text-[8rem]">dns</span>
-            </div>
-            <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-white/40 mb-2 relative z-10">Database Status</p>
-            <div className="flex items-center gap-3 relative z-10">
-              <h3 className="font-display text-4xl font-bold text-emerald-500">OPTIMAL</h3>
-            </div>
-          </div>
-          <div className="bg-[#111] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-[#D4AF37]/50 transition-colors">
-            <div className="absolute -right-4 -top-4 text-[#D4AF37]/10 group-hover:text-[#D4AF37]/20 transition-colors">
-              <span className="material-symbols-outlined !text-[8rem]">event</span>
-            </div>
-            <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-white/40 mb-2 relative z-10">Total Events</p>
-            <div className="flex items-end gap-3 relative z-10">
-              <h3 className="font-display text-4xl font-bold text-white">84</h3>
-            </div>
-          </div>
-          <div className="bg-[#111] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-[#3B82F6]/50 transition-colors">
-            <div className="absolute -right-4 -top-4 text-[#3B82F6]/10 group-hover:text-[#3B82F6]/20 transition-colors">
-              <span className="material-symbols-outlined !text-[8rem]">emoji_events</span>
-            </div>
-            <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-white/40 mb-2 relative z-10">Points Awarded</p>
-            <div className="flex items-end gap-3 relative z-10">
-              <h3 className="font-display text-4xl font-bold text-white">42k</h3>
-            </div>
-          </div>
+          <StatCard
+            icon="group"
+            label="Athletes"
+            value={overview.athletes}
+            color="#3B82F6"
+          />
+          <StatCard
+            icon="event"
+            label="Events"
+            value={overview.events}
+            color="#8B5CF6"
+          />
+          <StatCard
+            icon="sports_soccer"
+            label="Active Sports"
+            value={overview.activeSports}
+            color="#10B981"
+          />
+          <StatCard
+            icon="person"
+            label="Total Participations"
+            value={overview.totalParticipations}
+            color="#F59E0B"
+          />
+          <StatCard
+            icon="pin"
+            label="Total Points"
+            value={overview.totalPoints}
+            color="#D4AF37"
+          />
+          <StatCard
+            icon="emoji_events"
+            label="Gold Medals"
+            value={overview.goldMedals}
+            color="#D4AF37"
+          />
         </section>
 
-        {/* UPLOAD & VALIDATION AREA */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* UPLOAD FORM */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
-            <div className="bg-[#111]/80 backdrop-blur-md rounded-2xl border border-white/10 p-8 shadow-2xl">
-              <h3 className="font-display text-2xl font-bold uppercase text-white mb-6">Import Results File</h3>
-              
-              <div className="flex flex-col gap-2 mb-6">
-                <label className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Target Event ID</label>
-                <input
-                  type="text"
-                  value={eventId}
-                  onChange={(e) => setEventId(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl bg-black/50 border border-white/10 text-white focus:ring-1 focus:ring-[#D4AF37] focus:border-[#D4AF37] focus:outline-none font-sans text-sm transition-all"
-                  placeholder="e.g. EVENT-2026-FINALS"
-                />
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <label className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Upload CSV Document</label>
-                <div className="border-2 border-dashed border-white/20 rounded-2xl p-10 text-center hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all cursor-pointer relative bg-black/30 group">
-                  <input 
-                    type="file" 
-                    accept=".csv" 
-                    onChange={handleFileChange}
-                    ref={fileInputRef}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className="flex flex-col items-center justify-center pointer-events-none">
-                    <span className="material-symbols-outlined text-4xl text-white/40 group-hover:text-[#D4AF37] mb-3 transition-colors">upload_file</span>
-                    <p className="text-white font-sans text-sm font-bold uppercase tracking-wider">
-                      {file ? file.name : "Click or drag to select CSV"}
-                    </p>
-                    <p className="text-[10px] text-white/40 font-sans tracking-widest uppercase mt-2">
-                      Required Headers: Student ID, Student Name, School, Program, Year, Gender, Sport, Event, Participation Status, Gold, Silver, Bronze, Participation Points, Bonus Points, Total Points, Remarks
-                    </p>
-                  </div>
-                </div>
-                
-                <button 
-                  onClick={handleUpload}
-                  disabled={loading || !file || !eventId}
-                  className="mt-4 h-14 w-full rounded-xl bg-[#D4AF37] text-black font-sans text-sm font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(212,175,55,0.2)] disabled:shadow-none"
-                >
-                  {loading && <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>}
-                  {loading ? "Processing..." : "Validate & Import"}
-                </button>
-              </div>
-            </div>
+        {/* Charts */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Points by Month */}
+          <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
+            <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
+              Points by Month
+            </h3>
+            <BarChart data={charts.pointsByMonth} dataKey="points" color="#D4AF37" />
           </div>
 
-          {/* VALIDATION STATUS */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-            <div className="bg-[#111]/80 backdrop-blur-md rounded-2xl border border-white/10 p-8 flex flex-col h-full min-h-[450px] shadow-2xl">
-              <div className="flex justify-between items-center mb-6 pb-6 border-b border-white/5">
-                <h4 className="font-sans text-xs font-bold text-white/60 uppercase tracking-[0.3em]">Validation Status</h4>
-                <span className="material-symbols-outlined text-white/40">fact_check</span>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {success && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col gap-2 mb-6">
-                    <div className="flex items-center gap-3 text-emerald-500">
-                      <span className="material-symbols-outlined">check_circle</span>
-                      <h3 className="font-bold uppercase tracking-widest text-sm">Import Successful</h3>
-                    </div>
-                    <p className="text-xs text-white/70">{success}</p>
-                  </motion.div>
-                )}
-
-                {error && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-xl bg-red-500/10 border border-red-500/30 flex flex-col gap-2 mb-6">
-                    <div className="flex items-center gap-3 text-red-500">
-                      <span className="material-symbols-outlined">error</span>
-                      <h3 className="font-bold uppercase tracking-widest text-sm">Import Failed</h3>
-                    </div>
-                    <p className="text-xs text-white/70">{error}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {!error && !success && validationErrors.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-full flex-1 text-white/20">
-                  <span className="material-symbols-outlined text-[4rem] mb-6">analytics</span>
-                  <p className="text-center font-sans text-xs uppercase tracking-widest max-w-[200px]">System ready for file validation.</p>
-                </div>
-              )}
-            </div>
+          {/* Participation by Month */}
+          <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
+            <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
+              Participation by Month
+            </h3>
+            <BarChart data={charts.participationByMonth} dataKey="count" color="#3B82F6" />
           </div>
 
-        </div>
+          {/* Medals by Sport */}
+          <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
+            <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
+              Medals by Sport
+            </h3>
+            <MedalChart data={charts.medalsBySport} />
+          </div>
+
+          {/* Participation by Gender */}
+          <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
+            <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
+              Participation by Gender
+            </h3>
+            <PieChart data={charts.participationByGender} />
+          </div>
+
+          {/* Participation by School */}
+          <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
+            <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
+              Participation by School
+            </h3>
+            <HorizontalBar data={charts.participationBySchool} color="#10B981" />
+          </div>
+
+          {/* Participation by House */}
+          <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
+            <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
+              Participation by House
+            </h3>
+            <HorizontalBar data={charts.participationByHouse} color="#F59E0B" />
+          </div>
+        </section>
       </div>
     </AdminLayout>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: string;
+  label: string;
+  value: number;
+  color: string;
+}) {
+  return (
+    <motion.div
+      className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#111]/80 p-6 group hover:border-white/10 transition-colors"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <div className="absolute -right-4 -top-4 text-white/5 group-hover:text-white/10 transition-colors">
+        <span className="material-symbols-outlined !text-[6rem]">{icon}</span>
+      </div>
+      <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-white/40 mb-2 relative z-10">
+        {label}
+      </p>
+      <div className="flex items-center gap-3 relative z-10">
+        <h3
+          className="font-display text-4xl font-bold"
+          style={{ color }}
+        >
+          {value.toLocaleString()}
+        </h3>
+      </div>
+    </motion.div>
+  );
+}
+
+function BarChart({
+  data,
+  dataKey,
+  color,
+}: {
+  data: Array<{ month: string; [key: string]: any }>;
+  dataKey: string;
+  color: string;
+}) {
+  const maxValue = Math.max(...data.map((d) => d[dataKey]), 1);
+
+  return (
+    <div className="h-64">
+      <div className="flex items-end justify-between h-48 gap-2">
+        {data.map((d) => (
+          <div key={d.month} className="flex flex-col items-center flex-1">
+            <motion.div
+              className="w-full rounded-t-sm relative group"
+              style={{
+                height: `${(d[dataKey] / maxValue) * 100}%`,
+                background: `linear-gradient(180deg, ${color}, ${color}40)`,
+                minHeight: "4px",
+              }}
+              initial={{ height: 0 }}
+              animate={{ height: `${(d[dataKey] / maxValue) * 100}%` }}
+              transition={{ duration: 0.8 }}
+            >
+              <span
+                className="absolute -top-6 left-1/2 -translate-x-1/2 font-display text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ color }}
+              >
+                {d[dataKey]}
+              </span>
+            </motion.div>
+            <span className="font-sans text-[10px] text-white/40 mt-2 rotate-[-45deg] origin-top-left">
+              {d.month}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MedalChart({ data }: { data: MedalData[] }) {
+  const maxValue = Math.max(
+    ...data.flatMap((d) => [d.gold, d.silver, d.bronze]),
+    1
+  );
+
+  return (
+    <div className="h-64">
+      <div className="space-y-4">
+        {data.map((d) => (
+          <div key={d.sport} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-sans text-xs text-white/50 w-24 truncate">
+                {d.sport}
+              </span>
+              <div className="flex-1 flex items-center gap-1">
+                <div className="flex-1 h-4 rounded bg-white/[0.05] overflow-hidden">
+                  <motion.div
+                    className="h-full bg-[#D4AF37] rounded"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(d.gold / maxValue) * 100}%` }}
+                    transition={{ duration: 0.8 }}
+                  />
+                </div>
+                <span className="font-display text-xs font-bold text-[#D4AF37] w-8">
+                  {d.gold}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-sans text-xs text-white/50 w-24"></span>
+              <div className="flex-1 h-4 rounded bg-white/[0.05] overflow-hidden">
+                <motion.div
+                  className="h-full bg-[#C0C0C0] rounded"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(d.silver / maxValue) * 100}%` }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                />
+              </div>
+              <span className="font-display text-xs font-bold text-[#C0C0C0] w-8">
+                {d.silver}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-sans text-xs text-white/50 w-24"></span>
+              <div className="flex-1 h-4 rounded bg-white/[0.05] overflow-hidden">
+                <motion.div
+                  className="h-full bg-[#CD7F32] rounded"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(d.bronze / maxValue) * 100}%` }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                />
+              </div>
+              <span className="font-display text-xs font-bold text-[#CD7F32] w-8">
+                {d.bronze}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PieChart({ data }: { data: DimensionData[] }) {
+  const total = data.reduce((sum, d) => sum + Object.values(d)[1], 0);
+  const colors = ["#3B82F6", "#EC4899", "#10B981", "#F59E0B", "#8B5CF6"];
+
+  if (total === 0) {
+    return (
+      <div className="h-64 flex items-center justify-center text-white/30">
+        No data available
+      </div>
+    );
+  }
+
+  let cumulative = 0;
+  const slices = data.map((d, i) => {
+    const value = Object.values(d)[1] as number;
+    const start = cumulative;
+    cumulative += value;
+    const end = cumulative;
+    const largeArc = end - start > 0.5 ? 1 : 0;
+
+    const x1 = 50 + 40 * Math.cos(2 * Math.PI * start / total);
+    const y1 = 50 + 40 * Math.sin(2 * Math.PI * start / total);
+    const x2 = 50 + 40 * Math.cos(2 * Math.PI * end / total);
+    const y2 = 50 + 40 * Math.sin(2 * Math.PI * end / total);
+
+    return {
+      path: `M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`,
+      color: colors[i % colors.length],
+      label: Object.keys(d)[0],
+      value,
+    };
+  });
+
+  return (
+    <div className="h-64 flex items-center gap-8">
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        {slices.map((s, i) => (
+          <motion.path
+            key={s.label}
+            d={s.path}
+            fill={s.color}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.1 }}
+          />
+        ))}
+      </svg>
+      <div className="flex flex-col gap-2">
+        {slices.map((s, i) => (
+          <div key={s.label} className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: s.color }}
+            />
+            <span className="font-sans text-xs text-white/70">
+              {s.label}: {s.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HorizontalBar({
+  data,
+  color,
+}: {
+  data: DimensionData[];
+  color: string;
+}) {
+  const maxValue = Math.max(...data.map((d) => Object.values(d)[1] as number), 1);
+
+  return (
+    <div className="h-64">
+      <div className="space-y-3">
+        {data.map((d) => {
+          const key = Object.keys(d)[0];
+          const value = Object.values(d)[1] as number;
+          return (
+            <div key={key} className="flex items-center gap-3">
+              <span className="font-sans text-xs text-white/50 w-24 truncate">
+                {key}
+              </span>
+              <div className="flex-1 h-6 rounded bg-white/[0.05] overflow-hidden">
+                <motion.div
+                  className="h-full rounded flex items-center justify-end px-2"
+                  style={{
+                    width: `${(value / maxValue) * 100}%`,
+                    background: `linear-gradient(90deg, ${color}40, ${color})`,
+                  }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(value / maxValue) * 100}%` }}
+                  transition={{ duration: 0.8 }}
+                >
+                  <span className="font-display text-xs font-bold text-white">
+                    {value}
+                  </span>
+                </motion.div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

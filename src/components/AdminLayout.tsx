@@ -9,8 +9,10 @@ export default function AdminLayout({ children, title = "Sports Operations Cente
   const router = useRouter();
 
   const NAV = [
-    { href: '/admin/dashboard', icon: 'analytics', label: 'Data Center' },
+    { href: '/admin/dashboard', icon: 'analytics', label: 'Command Center' },
     { href: '/admin/students', icon: 'group', label: 'Athletes' },
+    { href: '/admin/events', icon: 'event', label: 'Events' },
+    { href: '/admin/broadcasts', icon: 'live_tv', label: 'Broadcasts' },
     { href: '/admin/results', icon: 'emoji_events', label: 'Results' },
     { href: '/admin/rules', icon: 'rule', label: 'Point Rules' },
     { href: '/admin/audit', icon: 'history', label: 'Audit Logs' },

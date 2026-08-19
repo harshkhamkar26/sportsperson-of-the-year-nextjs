@@ -9,11 +9,19 @@ import { getRankings } from '@/lib/rankings';
 import { staggerContainer, heroItem, imageReveal, podiumCard } from '@/components/cinema/variants';
 
 export async function getStaticProps() {
-  const rankings = await getRankings();
-  return {
-    props: { top3: rankings.slice(0, 3), count: rankings.length },
-    revalidate: 60,
-  };
+  try {
+    const rankings = await getRankings();
+    return {
+      props: { top3: rankings.slice(0, 3), count: rankings.length },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error("Failed to fetch rankings for home:", error);
+    return {
+      props: { top3: [], count: 0 },
+      revalidate: 60,
+    };
+  }
 }
 
 const HERO_IMG =
@@ -86,7 +94,7 @@ export default function Home({ top3, count }: { top3: any[]; count: number }) {
                   <span className="transition-transform group-hover:translate-x-1" aria-hidden>→</span>
                 </Link>
                 <Link
-                  href="/live"
+                  href="/broadcast"
                   className="inline-flex items-center gap-3 rounded-full border border-white/20 px-7 py-3.5 font-sans text-sm font-bold uppercase tracking-[0.15em] text-white transition-colors hover:border-white/40 hover:bg-white/5"
                 >
                   <span className="h-2 w-2 rounded-full bg-[#ef4444]">
@@ -200,6 +208,67 @@ export default function Home({ top3, count }: { top3: any[]; count: number }) {
                 </article>
               </Reveal>
             ))}
+          </div>
+        </section>
+
+        {/* ============ SECTION 03B — SCHOOLS & BROADCAST ============ */}
+        <section className="mx-auto max-w-[1400px] px-5 py-24 md:px-10">
+          <Reveal>
+            <SectionHeading
+              kicker="The Ecosystem"
+              title="Schools & Broadcast"
+              sub="Track your school's dominance. Watch the action unfold."
+            />
+          </Reveal>
+
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Reveal delay={0.1}>
+              <Link href="/schools" className="group block">
+                <motion.div
+                  className="relative h-64 rounded-3xl border border-white/[0.06] overflow-hidden"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#D4AF37]/5" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                    <span className="font-display text-5xl font-black text-[#D4AF37] mb-2">🏆</span>
+                    <h3 className="font-display text-3xl font-black uppercase text-white mb-2 group-hover:text-[#D4AF37] transition-colors">
+                      School Rankings
+                    </h3>
+                    <p className="font-sans text-sm text-white/50 max-w-sm">
+                      Which school dominates the season? Track points, medals, and athlete performance across all disciplines.
+                    </p>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
+                    <div className="h-full w-1/3 bg-[#D4AF37]" />
+                  </div>
+                </motion.div>
+              </Link>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              <Link href="/broadcast" className="group block">
+                <motion.div
+                  className="relative h-64 rounded-3xl border border-white/[0.06] overflow-hidden"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ef4444]/20 to-[#ef4444]/5" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                    <span className="font-display text-5xl font-black text-[#ef4444] mb-2">📺</span>
+                    <h3 className="font-display text-3xl font-black uppercase text-white mb-2 group-hover:text-[#ef4444] transition-colors">
+                      UAIU Sports Network
+                    </h3>
+                    <p className="font-sans text-sm text-white/50 max-w-sm">
+                      Watch live events, cheer for your athletes, and experience the action on the UAIU Sports Network.
+                    </p>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
+                    <div className="h-full w-1/3 bg-[#ef4444]" />
+                  </div>
+                </motion.div>
+              </Link>
+            </Reveal>
           </div>
         </section>
 

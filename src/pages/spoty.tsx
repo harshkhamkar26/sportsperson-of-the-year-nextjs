@@ -4,13 +4,21 @@ import SpotyPage from '@/components/spoty/SpotyPage';
 import { getRankings } from '@/lib/rankings';
 
 export async function getStaticProps() {
-  const rankings = await getRankings();
-  const topAthlete = rankings[0] || null;
-  const secondAthlete = rankings[1] || null;
-  return {
-    props: { topAthlete, secondAthlete },
-    revalidate: 60,
-  };
+  try {
+    const rankings = await getRankings();
+    const topAthlete = rankings[0] || null;
+    const secondAthlete = rankings[1] || null;
+    return {
+      props: { topAthlete, secondAthlete },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error("Failed to fetch rankings for SPOTY:", error);
+    return {
+      props: { topAthlete: null, secondAthlete: null },
+      revalidate: 60,
+    };
+  }
 }
 
 /**

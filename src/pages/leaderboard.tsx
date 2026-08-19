@@ -7,11 +7,19 @@ import Reveal from '@/components/cinema/Reveal';
 import { getRankings } from '@/lib/rankings';
 
 export async function getStaticProps() {
-  const rankings = await getRankings();
-  return {
-    props: { initialRankings: rankings },
-    revalidate: 60,
-  };
+  try {
+    const rankings = await getRankings();
+    return {
+      props: { initialRankings: rankings },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error("Failed to fetch rankings for leaderboard:", error);
+    return {
+      props: { initialRankings: [] },
+      revalidate: 60,
+    };
+  }
 }
 
 export default function Leaderboard({ initialRankings }: { initialRankings: any[] }) {
@@ -85,23 +93,30 @@ export default function Leaderboard({ initialRankings }: { initialRankings: any[
                 />
               </div>
               
-              <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
-                {houses.map(h => (
-                  <button
-                    key={h}
-                    onClick={() => setHouseFilter(h)}
-                    className={`whitespace-nowrap px-6 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all ${
-                      houseFilter === h 
-                        ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]' 
-                        : 'bg-black/40 text-white/50 border border-white/10 hover:text-white hover:border-white/30'
-                    }`}
-                  >
-                    {h} House
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
+              {houses.map(h => (
+                <button
+                  key={h}
+                  onClick={() => setHouseFilter(h)}
+                  className={`whitespace-nowrap px-6 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all ${
+                    houseFilter === h 
+                      ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]' 
+                      : 'bg-black/40 text-white/50 border border-white/10 hover:text-white hover:border-white/30'
+                  }`}
+                >
+                  {h} House
+                </button>
+              ))}
             </div>
-          </Reveal>
+            <Link
+              href="/schools"
+              className="flex items-center justify-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-6 py-2.5 font-sans text-xs font-bold uppercase tracking-widest text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/20"
+            >
+              <span className="material-symbols-outlined text-sm">school</span>
+              School Rankings
+            </Link>
+          </div>
+        </Reveal>
 
           {/* RANKING LIST */}
           <div className="w-full flex flex-col gap-3">
