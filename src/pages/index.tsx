@@ -6,19 +6,22 @@ import CinematicBackground from '@/components/cinema/CinematicBackground';
 import SectionHeading from '@/components/cinema/SectionHeading';
 import Reveal from '@/components/cinema/Reveal';
 import { getRankings } from '@/lib/rankings';
+import { getSchoolRankings } from '@/lib/analytics';
 import { staggerContainer, heroItem, imageReveal, podiumCard } from '@/components/cinema/variants';
 
 export async function getStaticProps() {
   try {
-    const rankings = await getRankings();
+    const [rankings, schools] = await Promise.all([getRankings(), getSchoolRankings()]);
+    const maleLeader = rankings.find((r) => r.gender === 'MALE') || null;
+    const femaleLeader = rankings.find((r) => r.gender === 'FEMALE') || null;
     return {
-      props: { top3: rankings.slice(0, 3), count: rankings.length },
+      props: { top3: rankings.slice(0, 3), count: rankings.length, maleLeader, femaleLeader, schools: schools.slice(0, 3) },
       revalidate: 60,
     };
   } catch (error) {
     console.error("Failed to fetch rankings for home:", error);
     return {
-      props: { top3: [], count: 0 },
+      props: { top3: [], count: 0, maleLeader: null, femaleLeader: null, schools: [] },
       revalidate: 60,
     };
   }
@@ -26,7 +29,19 @@ export async function getStaticProps() {
 
 const HERO_IMG =
   'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=1400&auto=format&fit=crop';
-export default function Home({ top3, count }: { top3: any[]; count: number }) {
+export default function Home({
+  top3,
+  count,
+  maleLeader,
+  femaleLeader,
+  schools,
+}: {
+  top3: any[];
+  count: number;
+  maleLeader: any | null;
+  femaleLeader: any | null;
+  schools: any[];
+}) {
   const reducedMotion = useReducedMotion();
   const { scrollY } = useScroll();
   const heroParallax = useTransform(scrollY, [0, 800], [0, -120]);
@@ -177,6 +192,81 @@ export default function Home({ top3, count }: { top3: any[]; count: number }) {
           </div>
           <RevealOnceCta href="/leaderboard" label="Full Leaderboard" className="mt-12" />
         </section>
+
+        {/* ============ SECTION 02B — SPOTY CATEGORY LEADERS ============ */}
+        {(maleLeader || femaleLeader) && (
+          <section className="mx-auto max-w-[1400px] px-5 py-24 md:px-10">
+            <SectionHeading
+              kicker="The Champions"
+              title="Category Leaders"
+              sub="The #1 Sportsman and #1 Sportswoman on the SPOTY classification."
+              align="center"
+            />
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+              {maleLeader && <CategoryLeaderCard athlete={maleLeader} gender="MALE" />}
+              {femaleLeader && <CategoryLeaderCard athlete={femaleLeader} gender="FEMALE" />}
+            </div>
+          </section>
+        )}
+
+        {/* ============ SECTION 02C — THE CAMPUS RACE ============ */}
+        {schools.length > 0 && (
+          <section className="relative mx-auto max-w-[1400px] px-5 py-24 md:px-10">
+            <Reveal>
+              <SectionHeading
+                kicker="The Campus Race"
+                title="School Championship Standings"
+                sub="Which school dominates the season?"
+                align="center"
+              />
+            </Reveal>
+            <div className="mt-16 space-y-4">
+              {schools.map((school, i) => {
+                const maxPts = schools[0]?.totalPoints || 1;
+                const pct = Math.round(((school.totalPoints || 0) / maxPts) * 100);
+                const isFirst = i === 0;
+                return (
+                  <Reveal key={school.id} delay={i * 0.1}>
+                    <Link href="/schools" className="group block">
+                      <div className={`relative flex items-center gap-4 md:gap-8 rounded-2xl border p-4 md:p-6 transition-colors ${isFirst ? 'border-[#D4AF37]/30 bg-[#D4AF37]/5' : 'border-white/[0.06] bg-white/[0.02] hover:border-white/15'}`}>
+                        <span className={`font-display text-4xl md:text-6xl font-black w-14 shrink-0 text-center ${isFirst ? 'text-[#D4AF37]' : 'text-white/20'}`}>
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`font-display text-lg md:text-2xl font-bold uppercase ${isFirst ? 'text-[#D4AF37]' : 'text-white'}`}>
+                            {school.name}
+                          </h3>
+                          <div className="relative mt-2 h-3 md:h-5 rounded-full bg-white/[0.04] border border-white/[0.06] overflow-hidden">
+                            <motion.div
+                              className="h-full rounded-full"
+                              style={{
+                                background: school.color
+                                  ? `linear-gradient(90deg, ${school.color}40, ${school.color})`
+                                  : 'linear-gradient(90deg, #D4AF3740, #D4AF37)',
+                              }}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.8, delay: i * 0.1 }}
+                            />
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-display text-2xl md:text-4xl font-black text-white tabular-nums">
+                            {school.totalPoints.toLocaleString()}
+                          </span>
+                          <span className="block font-sans text-[10px] uppercase tracking-widest text-white/40">
+                            Points
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
+            <RevealOnceCta href="/schools" label="View School Rankings" className="mt-10" />
+          </section>
+        )}
 
         {/* ============ SECTION 03 — RECENT HIGHLIGHTS ============ */}
         <section className="mx-auto max-w-[1400px] px-5 py-24 md:px-10">
@@ -377,6 +467,70 @@ function MiniStat({ value, label, gold = false }: { value: number; label: string
       </span>
       <span className="font-sans text-[9px] uppercase tracking-[0.25em] text-white/40">{label}</span>
     </div>
+  );
+}
+
+function CategoryLeaderCard({ athlete, gender }: { athlete: any; gender: "MALE" | "FEMALE" }) {
+  const isMale = gender === "MALE";
+  const accentColor = isMale ? "#D4AF37" : "#8B5CF6";
+  const title = isMale ? "Sportsman of the Year" : "Sportswoman of the Year";
+
+  return (
+    <Link href={`/athlete/${athlete.id}`} className="group block">
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        transition={{ duration: 0.3 }}
+        className="relative overflow-hidden rounded-3xl border p-8 h-full"
+        style={{
+          borderColor: `${accentColor}30`,
+          background: `linear-gradient(135deg, ${accentColor}10, transparent 60%)`,
+        }}
+      >
+        <div className="flex items-center gap-6">
+          <div className="h-20 w-20 md:h-24 md:w-24 shrink-0 overflow-hidden rounded-full border-2"
+            style={{ borderColor: `${accentColor}50` }}
+          >
+            {athlete.photoUrl ? (
+              <img src={athlete.photoUrl} alt={athlete.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#333] to-[#111]">
+                <span className="font-display text-3xl font-bold text-white/30">
+                  {athlete.name.split(" ").map((n: string) => n[0]).join("")}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-sans text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: accentColor }}>
+              #{String(athlete.rank).padStart(2, "0")} • {title}
+            </p>
+            <h3 className="mt-1 font-display text-2xl md:text-3xl font-black uppercase text-white truncate">
+              {athlete.name}
+            </h3>
+            <p className="font-sans text-xs text-white/50 mt-1">
+              {athlete.className} • {athlete.house}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+          <div>
+            <span className="font-display text-2xl font-bold tabular-nums" style={{ color: accentColor }}>
+              {athlete.totalPoints}
+            </span>
+            <p className="font-sans text-[9px] uppercase tracking-widest text-white/40">Points</p>
+          </div>
+          <div>
+            <span className="font-display text-2xl font-bold text-white">{athlete.eventsCount}</span>
+            <p className="font-sans text-[9px] uppercase tracking-widest text-white/40">Events</p>
+          </div>
+          <div>
+            <span className="font-display text-2xl font-bold text-[#D4AF37]">{athlete.medals?.gold || 0}</span>
+            <p className="font-sans text-[9px] uppercase tracking-widest text-white/40">Gold</p>
+          </div>
+        </div>
+      </motion.div>
+    </Link>
   );
 }
 

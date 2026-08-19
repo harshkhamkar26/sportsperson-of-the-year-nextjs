@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: '/schools', label: 'Schools' },
   { href: '/broadcast', label: 'Broadcast' },
   { href: '/athletes', label: 'Athletes' },
+  { href: '/live', label: 'Live' },
 ];
 
 /**
@@ -117,6 +118,7 @@ export default function Layout({ children, title = 'Universal AI University Athl
                 <Link href="/" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Home</Link>
                 <Link href="/leaderboard" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Leaderboard</Link>
                 <Link href="/broadcast" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Broadcast</Link>
+                <Link href="/live" className="font-sans text-sm font-semibold text-[#ef4444] transition-colors hover:text-white">Live TV</Link>
                 <Link href="/schools" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Schools</Link>
                 <Link href="/spoty" className="font-sans text-sm font-semibold text-[#D4AF37] transition-colors hover:text-white">SPOTY</Link>
               </div>
