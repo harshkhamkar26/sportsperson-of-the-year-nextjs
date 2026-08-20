@@ -1,13 +1,16 @@
 import Head from 'next/head';
 import Layout from '@/components/Layout';
 import SpotyPage from '@/components/spoty/SpotyPage';
-import { getRankings } from '@/lib/rankings';
+import { getMaleRankings, getFemaleRankings } from '@/lib/rankings';
 
 export async function getStaticProps() {
   try {
-    const rankings = await getRankings();
-    const topAthlete = rankings[0] || null;
-    const secondAthlete = rankings[1] || null;
+    const maleRankings = await getMaleRankings();
+    const femaleRankings = await getFemaleRankings();
+    
+    const topAthlete = maleRankings[0] || null;
+    const secondAthlete = femaleRankings[0] || null;
+    
     return {
       props: { topAthlete, secondAthlete },
       revalidate: 60,

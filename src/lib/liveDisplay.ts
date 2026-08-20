@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { getMaleRankings, getFemaleRankings } from "./rankings";
 
 /**
  * UAIU SPORTS LIVE — Centralized configuration for the TV/venue display.
@@ -68,50 +69,46 @@ export interface LiveDisplayData {
  * Uses real ranking data from the database.
  */
 export async function getLiveDisplayData(): Promise<LiveDisplayData> {
-  // Get all students with their point entries, sport, school
-  const students = await prisma.student.findMany({
-    include: {
-      sport: true,
-      school: true,
-      department: true,
-      pointEntries: { include: { event: true } },
-    },
-  });
+  const [maleRankings, femaleRankings] = await Promise.all([
+    getMaleRankings(),
+    getFemaleRankings()
+  ]);
 
-  // Build athlete leaderboard
-  const leaderboard = students.map((s) => {
-    const totalPoints = s.pointEntries.reduce((sum, pe) => sum + pe.points, 0);
-    const gold = s.pointEntries.filter((pe) => pe.position === 1).length;
-    const silver = s.pointEntries.filter((pe) => pe.position === 2).length;
-    const bronze = s.pointEntries.filter((pe) => pe.position === 3).length;
+  // Map to LiveAthlete format for male leader
+  const maleLeaderRaw = maleRankings.length > 0 ? maleRankings[0] : null;
+  const maleLeader: LiveAthlete | null = maleLeaderRaw ? {
+    id: maleLeaderRaw.id,
+    name: maleLeaderRaw.name,
+    rollNumber: maleLeaderRaw.rollNumber,
+    gender: maleLeaderRaw.gender,
+    photoUrl: maleLeaderRaw.photoUrl,
+    totalPoints: maleLeaderRaw.totalPoints,
+    eventsCount: maleLeaderRaw.eventsCount,
+    medals: maleLeaderRaw.medals,
+    podiums: maleLeaderRaw.medals.gold + maleLeaderRaw.medals.silver + maleLeaderRaw.medals.bronze,
+    sport: maleLeaderRaw.sport || null,
+    school: maleLeaderRaw.school || null,
+    department: maleLeaderRaw.department || null,
+    rank: maleLeaderRaw.rank
+  } : null;
 
-    return {
-      id: s.id,
-      name: s.name,
-      rollNumber: s.rollNumber,
-      gender: s.gender,
-      photoUrl: s.photoUrl,
-      totalPoints,
-      eventsCount: s.pointEntries.length,
-      medals: { gold, silver, bronze },
-      podiums: gold + silver + bronze,
-      sport: s.sport,
-      school: s.school,
-      department: s.department,
-      rank: 0,
-    };
-  });
-
-  // Sort by points descending for overall rank
-  leaderboard.sort((a, b) => b.totalPoints - a.totalPoints);
-  leaderboard.forEach((s, i) => (s.rank = i + 1));
-
-  // Get male leader
-  const maleLeader =
-    leaderboard.find((s) => s.gender === "MALE") || leaderboard.find((s) => s.gender !== "FEMALE") || null;
-
-  // Get female leader
-  const femaleLeader = leaderboard.find((s) => s.gender === "FEMALE") || null;
+  // Map to LiveAthlete format for female leader
+  const femaleLeaderRaw = femaleRankings.length > 0 ? femaleRankings[0] : null;
+  const femaleLeader: LiveAthlete | null = femaleLeaderRaw ? {
+    id: femaleLeaderRaw.id,
+    name: femaleLeaderRaw.name,
+    rollNumber: femaleLeaderRaw.rollNumber,
+    gender: femaleLeaderRaw.gender,
+    photoUrl: femaleLeaderRaw.photoUrl,
+    totalPoints: femaleLeaderRaw.totalPoints,
+    eventsCount: femaleLeaderRaw.eventsCount,
+    medals: femaleLeaderRaw.medals,
+    podiums: femaleLeaderRaw.medals.gold + femaleLeaderRaw.medals.silver + femaleLeaderRaw.medals.bronze,
+    sport: femaleLeaderRaw.sport || null,
+    school: femaleLeaderRaw.school || null,
+    department: femaleLeaderRaw.department || null,
+    rank: femaleLeaderRaw.rank
+  } : null;
 
   // School rankings from analytics helper
   const { getSchoolRankings } = await import("./analytics");

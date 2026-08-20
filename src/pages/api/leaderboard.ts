@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "@/lib/prisma";
 import { getRankings } from "@/lib/rankings";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -17,24 +16,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const skip = (page - 1) * limit;
 
-    // Filters for students
-    const where: any = {};
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { rollNumber: { contains: search } },
-      ];
-    }
-    if (house) where.house = house;
-    if (className) where.className = className;
+    // Get global rankings first to preserve global rank numbers
+    let leaderboard = await getRankings();
 
-    // Apply ranking is now done inside getRankings
-    const leaderboard = await getRankings(where);
+    // Apply filtering on the result
+    if (search) {
+      const searchLower = search.toLowerCase();
+      leaderboard = leaderboard.filter(s => 
+        s.name.toLowerCase().includes(searchLower) || 
+        s.rollNumber.toLowerCase().includes(searchLower)
+      );
+    }
+    if (house) {
+      leaderboard = leaderboard.filter(s => s.house === house);
+    }
+    if (className) {
+      leaderboard = leaderboard.filter(s => s.className === className);
+    }
 
     // Paginate
     const paginatedLeaderboard = leaderboard.slice(skip, skip + limit);
 
-    // Set cache headers as requested
+    // Set cache headers
     res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=60");
 
     res.status(200).json({

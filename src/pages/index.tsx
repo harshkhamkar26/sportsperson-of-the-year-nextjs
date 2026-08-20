@@ -5,15 +5,20 @@ import Layout from '@/components/Layout';
 import CinematicBackground from '@/components/cinema/CinematicBackground';
 import SectionHeading from '@/components/cinema/SectionHeading';
 import Reveal from '@/components/cinema/Reveal';
-import { getRankings } from '@/lib/rankings';
+import { getRankings, getMaleRankings, getFemaleRankings } from '@/lib/rankings';
 import { getSchoolRankings } from '@/lib/analytics';
 import { staggerContainer, heroItem, imageReveal, podiumCard } from '@/components/cinema/variants';
 
 export async function getStaticProps() {
   try {
-    const [rankings, schools] = await Promise.all([getRankings(), getSchoolRankings()]);
-    const maleLeader = rankings.find((r) => r.gender === 'MALE') || null;
-    const femaleLeader = rankings.find((r) => r.gender === 'FEMALE') || null;
+    const [rankings, schools, maleRankings, femaleRankings] = await Promise.all([
+      getRankings(),
+      getSchoolRankings(),
+      getMaleRankings(),
+      getFemaleRankings()
+    ]);
+    const maleLeader = maleRankings.length > 0 ? maleRankings[0] : null;
+    const femaleLeader = femaleRankings.length > 0 ? femaleRankings[0] : null;
     return {
       props: { top3: rankings.slice(0, 3), count: rankings.length, maleLeader, femaleLeader, schools: schools.slice(0, 3) },
       revalidate: 60,
@@ -51,7 +56,7 @@ export default function Home({
       <CinematicBackground tone="arena" />
       <div className="relative z-10">
         {/* ============ HERO — ENTER THE ARENA ============ */}
-        <section className="relative flex min-h-[92vh] flex-col overflow-hidden pt-32 md:pt-48">
+        <section className="relative flex min-h-screen flex-col justify-center overflow-hidden pt-20 pb-12">
           <motion.div
             style={{ y: heroParallax }}
             className="absolute inset-0 pointer-events-none"

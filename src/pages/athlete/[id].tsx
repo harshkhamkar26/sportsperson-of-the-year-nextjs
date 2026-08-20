@@ -7,6 +7,7 @@ import CinematicBackground from "@/components/cinema/CinematicBackground";
 import SectionHeading from "@/components/cinema/SectionHeading";
 import Reveal from "@/components/cinema/Reveal";
 import { getAthleteAnalytics } from "@/lib/analytics";
+import { getRankings, getMaleRankings, getFemaleRankings } from "@/lib/rankings";
 import { prisma } from "@/lib/prisma";
 
 export async function getServerSideProps({ params }: any) {
@@ -19,9 +20,25 @@ export async function getServerSideProps({ params }: any) {
       return { notFound: true };
     }
 
+    const [globalRankings, maleRankings, femaleRankings] = await Promise.all([
+      getRankings(),
+      getMaleRankings(),
+      getFemaleRankings()
+    ]);
+
+    const globalRank: string | number = globalRankings.find(a => a.id === id)?.rank || '-';
+    let categoryRank: string | number = '-';
+    if (analytics.student.gender === 'MALE') {
+      categoryRank = maleRankings.find(a => a.id === id)?.rank || '-';
+    } else if (analytics.student.gender === 'FEMALE') {
+      categoryRank = femaleRankings.find(a => a.id === id)?.rank || '-';
+    }
+
     return {
       props: {
         analytics: JSON.parse(JSON.stringify(analytics)),
+        globalRank,
+        categoryRank,
       },
     };
   } catch (error) {
@@ -74,7 +91,7 @@ interface AthleteAnalytics {
   }>;
 }
 
-export default function AthleteProfile({ analytics }: { analytics: AthleteAnalytics }) {
+export default function AthleteProfile({ analytics, globalRank, categoryRank }: { analytics: AthleteAnalytics, globalRank: number | string, categoryRank: number | string }) {
   const { student, totalPoints, eventsCount, medals, podiums, wins, participationRate, withdrawals, chartData, sportBreakdown, eventHistory, awards } = analytics;
 
   const getParticipationLabel = (rate: number) => {
@@ -117,8 +134,8 @@ export default function AthleteProfile({ analytics }: { analytics: AthleteAnalyt
                     </div>
                   )}
                 </div>
-                <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-[#060606] bg-[#D4AF37] px-3 py-1 font-display text-sm font-bold text-black">
-                  #{analytics.totalPoints > 0 ? "04" : "01"}
+                <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-[#060606] bg-[#D4AF37] px-3 py-1 font-display text-sm font-bold text-black" title="Category Rank">
+                  #{categoryRank}
                 </div>
               </div>
 

@@ -5,18 +5,26 @@ import { motion, AnimatePresence } from "framer-motion";
 import Layout from "@/components/Layout";
 import CinematicBackground from "@/components/cinema/CinematicBackground";
 import Reveal from "@/components/cinema/Reveal";
-import { getRankings } from "@/lib/rankings";
+import { getRankings, getMaleRankings, getFemaleRankings } from "@/lib/rankings";
 
 export async function getServerSideProps() {
   try {
-    const rankings = await getRankings();
+    const [allAthletes, maleAthletes, femaleAthletes] = await Promise.all([
+      getRankings(),
+      getMaleRankings(),
+      getFemaleRankings()
+    ]);
     return {
-      props: { athletes: JSON.parse(JSON.stringify(rankings)) },
+      props: { 
+        allAthletes: JSON.parse(JSON.stringify(allAthletes)),
+        maleAthletes: JSON.parse(JSON.stringify(maleAthletes)),
+        femaleAthletes: JSON.parse(JSON.stringify(femaleAthletes))
+      },
     };
   } catch (error) {
     console.error("Failed to fetch athletes:", error);
     return {
-      props: { athletes: [] },
+      props: { allAthletes: [], maleAthletes: [], femaleAthletes: [] },
     };
   }
 }
@@ -35,22 +43,29 @@ interface Athlete {
   medals: { gold: number; silver: number; bronze: number };
 }
 
-export default function AthletesPage({ athletes }: { athletes: Athlete[] }) {
+interface Props {
+  allAthletes: Athlete[];
+  maleAthletes: Athlete[];
+  femaleAthletes: Athlete[];
+}
+
+export default function AthletesPage({ allAthletes, maleAthletes, femaleAthletes }: Props) {
   const [search, setSearch] = useState("");
   const [genderFilter, setGenderFilter] = useState("All");
 
+  const activeAthletes = useMemo(() => {
+    if (genderFilter === "Men") return maleAthletes;
+    if (genderFilter === "Women") return femaleAthletes;
+    return allAthletes;
+  }, [genderFilter, allAthletes, maleAthletes, femaleAthletes]);
+
   const filtered = useMemo(() => {
-    return athletes.filter((a) => {
-      const matchesSearch =
-        a.name.toLowerCase().includes(search.toLowerCase()) ||
-        a.rollNumber.toLowerCase().includes(search.toLowerCase());
-      const matchesGender =
-        genderFilter === "All" ||
-        (genderFilter === "Men" && a.gender === "MALE") ||
-        (genderFilter === "Women" && a.gender === "FEMALE");
-      return matchesSearch && matchesGender;
+    if (!search) return activeAthletes;
+    return activeAthletes.filter((a) => {
+      return a.name.toLowerCase().includes(search.toLowerCase()) ||
+             a.rollNumber.toLowerCase().includes(search.toLowerCase());
     });
-  }, [athletes, search, genderFilter]);
+  }, [activeAthletes, search]);
 
   return (
     <Layout title="Athletes | UAIU Sports Directory">

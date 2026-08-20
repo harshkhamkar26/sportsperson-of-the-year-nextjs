@@ -1,65 +1,42 @@
-# FUTURE — Gender / Category Support for SPOTY
+# GENDER / CATEGORY SUPPORT FOR SPOTY
 
-## Current behaviour (demonstration logic)
+## Current Architecture
 
-Today the `/spoty` page maps:
+The platform now natively supports true category-based rankings for Sportsmen and Sportswomen.
 
-- **Rank #1** → `sportsman` (Sportsman of the Year)
-- **Rank #2** → `sportswoman` (Sportswoman of the Year)
-
-This is explicitly **temporary**. It exists only so the frontend can be
-designed, tested and shown before real category data is available.
-
-## Where the mapping lives
-
-`src/pages/spoty.tsx` (`getStaticProps`) passes `rankings[0]` and
-`rankings[1]` into `SpotyPage`. `src/components/spoty/data.ts` →
-`buildAthleteProfile(category, athlete)` then decorates the row with the
-category label, atmosphere colour and placeholder sport text.
-
-## Required Prisma schema change (when ready)
-
-Add a gender/category field to the `Student` model. Example:
+The `Student` model in Prisma contains the `gender` field:
 
 ```prisma
 model Student {
-  id         String   @id @default(uuid())
-  rollNumber String   @unique
-  name       String
-  className  String
-  house      String?
-  photoUrl   String?
-  gender     String?  // "MALE" | "FEMALE" — nullable, additive, non-breaking
-  pointEntries PointEntry[]
+  ...
+  gender String? // "MALE" | "FEMALE" | "OTHER"
+  ...
 }
 ```
 
-Notes:
+## Central Ranking Engine
 
-- `gender` is **nullable and additive** — existing rows keep working, and the
-  current production database is untouched by the migration.
-- Run `npx prisma migrate dev --name add_student_gender` when adopting it.
+The `src/lib/rankings.ts` file exports a centralized ranking engine:
+- `getRankings()` - Calculates Global Rankings
+- `getMaleRankings()` - Calculates Sportsmen Rankings (Starts at #1)
+- `getFemaleRankings()` - Calculates Sportswomen Rankings (Starts at #1)
+- `getSportRankings(sportId)` - Calculates Rankings within a specific sport
 
-## How the frontend should resolve categories afterwards
+**Important:** Category rankings are independently calculated. The #1 Sportsman is NOT just the first male found in the global ranking. The ranking engine filters the dataset *before* sorting and assigning ranks (1, 2, 3...) so that category leaders correctly receive Rank #1 in their respective categories.
 
-In `getStaticProps`, query students per gender and rank each group:
+## SPOTY Page Resolution
 
+`src/pages/spoty.tsx` dynamically resolves the true winners:
 ```ts
-// conceptual — once `gender` exists
-const males = await getRankings({ gender: 'MALE' });
-const females = await getRankings({ gender: 'FEMALE' });
-const topAthlete = males[0] ?? null;     // Sportsman of the Year
-const secondAthlete = females[0] ?? null; // Sportswoman of the Year
+const maleRankings = await getMaleRankings();
+const femaleRankings = await getFemaleRankings();
+
+const topAthlete = maleRankings[0] || null;
+const secondAthlete = femaleRankings[0] || null;
 ```
 
-The rest of the UI (`WinnerCard`, `AchievementStats`, …) already receives
-category-aware profiles and requires **no changes**. `buildAthleteProfile`
-should then read `gender` directly instead of trusting rank order.
+This ensures that the "Sportsman of the Year" is genuinely the #1 ranked male, and the "Sportswoman of the Year" is genuinely the #1 ranked female. The temporary mapping of Rank 1/Rank 2 has been permanently removed.
 
-## Champion honours
+## Athlete Directory
 
-- `championships` currently defaults to `0` in the UI because the
-  `Student`/`PointEntry` schema has no championship concept yet. When a
-  `Championship`/`Tournament` model is introduced, wire it through the
-  rankings aggregation in `src/lib/rankings.ts` and surface it in
-  `AchievementStats` — do **not** hardcode values.
+The `/athletes` directory uses `getServerSideProps` to pre-fetch all three leaderboards (Global, Male, Female). When a user filters the directory, it switches between these pre-calculated arrays to ensure that rank numbers displayed on the cards are accurate to the selected context.

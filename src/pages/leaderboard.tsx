@@ -121,7 +121,7 @@ export default function Leaderboard({ initialRankings }: { initialRankings: any[
           {/* RANKING LIST */}
           <div className="w-full flex flex-col gap-3">
             <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/10 font-sans text-[10px] uppercase tracking-widest text-white/30 font-bold">
-              <div className="col-span-1 text-center">Rank</div>
+              <div className="col-span-2 md:col-span-1 text-center">Global Rank</div>
               <div className="col-span-5 md:col-span-4">Athlete</div>
               <div className="col-span-3 hidden md:block">School / House</div>
               <div className="col-span-3 md:col-span-2 text-center">Points</div>
