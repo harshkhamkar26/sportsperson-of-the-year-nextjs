@@ -64,7 +64,7 @@ export default function Home({
           >
             <motion.img
               src={HERO_IMG}
-              alt=""
+              alt="Universal AI University athletes competing in a stadium"
               variants={imageReveal}
               initial="hidden"
               animate="visible"
@@ -290,7 +290,7 @@ export default function Home({
                 <article className="group relative h-72 overflow-hidden rounded-2xl border border-white/[0.06]">
                   <img
                     src={h.img}
-                    alt=""
+                    alt={h.title}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                   />
@@ -415,6 +415,17 @@ export default function Home({
             </motion.div>
           </Reveal>
         </section>
+      </div>
+
+      {/* Sticky Mobile CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:hidden bg-gradient-to-t from-black via-black/90 to-transparent pb-6 pt-12 pointer-events-none">
+        <Link
+          href="/leaderboard"
+          className="w-full flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-4 font-sans text-sm font-bold uppercase tracking-widest text-black shadow-[0_0_20px_rgba(212,175,55,0.4)] pointer-events-auto active:scale-95 transition-transform"
+        >
+          View Live Leaderboard
+          <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </Link>
       </div>
     </Layout>
   );

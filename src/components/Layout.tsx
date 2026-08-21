@@ -17,7 +17,19 @@ const NAV_LINKS = [
  * When on /spoty the header retreats to a minimal hairline so the award
  * ceremony owns the screen.
  */
-export default function Layout({ children, title = 'Universal AI University Athletics' }: { children: React.ReactNode; title?: string }) {
+interface LayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+export default function Layout({ 
+  children, 
+  title = 'Universal AI University Athletics | SPOTY', 
+  description = 'The official home of Universal AI University Sports Club. Track live leaderboards, events, and find the true Sportsperson of the Year.',
+  ogImage = '/images/og-default.jpg'
+}: LayoutProps) {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
   const onSpoty = router.pathname === '/spoty';
@@ -26,7 +38,24 @@ export default function Layout({ children, title = 'Universal AI University Athl
     <>
       <Head>
         <title>{title}</title>
+        <meta name="description" content={description} />
         <meta name="theme-color" content="#0a0a0a" />
+        
+        {/* Open Graph / Social Tags */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
+
+        {/* Favicons */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
       </Head>
       <div className="relative min-h-screen bg-[#070707] font-sans text-white antialiased">
         {/* Header */}
@@ -106,30 +135,31 @@ export default function Layout({ children, title = 'Universal AI University Athl
                 <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] text-[#D4AF37]">Universal AI University</p>
                 <h2 className="mt-2 font-display text-2xl md:text-3xl font-black uppercase leading-none text-white">Sports Club</h2>
                 <p className="mt-4 max-w-sm font-sans text-sm font-light text-white/50 leading-relaxed">
-                  The season continues. Every point, every podium, every champion writes the story. Performance becomes legacy.
+                  The season continues. The legacy remains. Explore the true classification of the best athletes on campus.
                 </p>
+                
+                {/* Contact Address */}
+                <div className="mt-8 font-sans text-xs text-white/40 leading-relaxed max-w-xs">
+                  <p className="font-bold text-white/70 mb-1">Universal AI University Campus</p>
+                  <p>Kushivili, Vadap,</p>
+                  <p>Karjat, Maharashtra 410201,</p>
+                  <p>India</p>
+                </div>
               </div>
             </div>
-
-            <div>
-              <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-white/40 mb-6">Explore</p>
-              <div className="flex flex-col gap-4">
-                <Link href="/" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Home</Link>
-                <Link href="/leaderboard" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Leaderboard</Link>
-                <Link href="/broadcast" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Broadcast</Link>
-                <Link href="/schools" className="font-sans text-sm text-white/70 transition-colors hover:text-[#D4AF37]">Schools</Link>
-                <Link href="/spoty" className="font-sans text-sm font-semibold text-[#D4AF37] transition-colors hover:text-white">SPOTY</Link>
-              </div>
+            
+            <div className="flex flex-col gap-4 pt-4">
+              <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-white/70 mb-2">Platform</h3>
+              <Link href="/leaderboard" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">Global Leaderboard</Link>
+              <Link href="/athletes" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">Athlete Directory</Link>
+              <Link href="/sports" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">Sports Disciplines</Link>
+              <Link href="/spoty" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">SPOTY Classification</Link>
+              <Link href="/contact" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors mt-2">Contact Us</Link>
             </div>
 
-            <div className="flex flex-col items-start md:items-end text-left md:text-right">
-              <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-white/40 mb-6">Connect</p>
-              <a 
-                href="https://www.instagram.com/sportsclub_uai" 
-                target="_blank" 
-                rel="noreferrer"
-                className="group flex flex-col items-start md:items-end gap-4 transition-transform hover:-translate-y-1"
-              >
+            <div className="flex flex-col items-start md:items-end gap-6 pt-4">
+              <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-white/70">Connect</h3>
+              <a href="https://instagram.com/sportsclub_uai" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3">
                 <div className="bg-white p-2 rounded-xl shadow-[0_0_15px_rgba(212,175,55,0.15)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-shadow">
                   <img src="/images/insta-qr.png" alt="Instagram QR" className="w-24 h-24 object-contain rounded-lg" />
                 </div>
@@ -140,14 +170,17 @@ export default function Layout({ children, title = 'Universal AI University Athl
               </a>
             </div>
           </div>
-          <div className="border-t border-white/[0.05] py-6 text-center bg-black/40">
+          <div className="border-t border-white/[0.05] py-6 px-5 flex flex-col md:flex-row justify-between items-center gap-4 bg-black/40">
             <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-white/30">
               © {new Date().getFullYear()} Universal AI University — Sports Club OS
             </p>
+            <div className="flex items-center gap-6">
+              <Link href="/privacy" className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/30 hover:text-white/70 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/30 hover:text-white/70 transition-colors">Terms of Service</Link>
+            </div>
           </div>
         </footer>
       </div>
     </>
   );
 }
-
