@@ -54,6 +54,10 @@ export default function GlobalSearch({ rankings }: { rankings: any[] }) {
               className="block w-full pl-12 pr-4 py-4 bg-surface-container-low border-2 border-primary rounded-lg font-body-lg text-body-lg text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-0 focus:border-primary shadow-[0_0_15px_rgba(173,198,255,0.15)] transition-shadow" 
               placeholder="Search athletes, sports, events..." 
               type="text" 
+              name="global-search"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />

@@ -8,6 +8,7 @@ import Reveal from '@/components/cinema/Reveal';
 import { getRankings, getMaleRankings, getFemaleRankings } from '@/lib/rankings';
 import { getSchoolRankings } from '@/lib/analytics';
 import { staggerContainer, heroItem, imageReveal, podiumCard } from '@/components/cinema/variants';
+import InteractiveLandscape from '@/components/InteractiveLandscape';
 
 export async function getStaticProps() {
   try {
@@ -32,8 +33,6 @@ export async function getStaticProps() {
   }
 }
 
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=1400&auto=format&fit=crop';
 export default function Home({
   top3,
   count,
@@ -62,15 +61,7 @@ export default function Home({
             className="absolute inset-0 pointer-events-none"
             aria-hidden
           >
-            <motion.img
-              src={HERO_IMG}
-              alt="Universal AI University athletes competing in a stadium"
-              variants={imageReveal}
-              initial="hidden"
-              animate="visible"
-              className="h-full w-full object-cover object-top opacity-30"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/60 to-[#060606]/20" />
+            <InteractiveLandscape />
           </motion.div>
 
           <div className="relative mx-auto w-full max-w-[1400px] px-5 md:px-10">
