@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { motion, useReducedMotion } from 'framer-motion';
 
 const NAV_LINKS = [
-  { href: '/', label: 'Home' },
+  { href: '/home', label: 'Home' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/schools', label: 'Schools' },
   { href: '/broadcast', label: 'Broadcast' },
@@ -32,7 +32,7 @@ export default function Layout({
 }: LayoutProps) {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
-  const onSpoty = router.pathname === '/spoty';
+  const onSpoty = router.pathname === '/';
 
   return (
     <>
@@ -93,7 +93,7 @@ export default function Layout({
                     </Link>
                   );
                 })}
-                <Link href="/spoty" className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:text-white">
+                <Link href="/" className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:text-white">
                   Person of the Year
                 </Link>
               </nav>
@@ -153,7 +153,7 @@ export default function Layout({
               <Link href="/leaderboard" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">Global Leaderboard</Link>
               <Link href="/athletes" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">Athlete Directory</Link>
               <Link href="/sports" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">Sports Disciplines</Link>
-              <Link href="/spoty" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">SPOTY Classification</Link>
+              <Link href="/" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors">SPOTY Classification</Link>
               <Link href="/contact" className="font-sans text-sm text-white/50 hover:text-[#D4AF37] transition-colors mt-2">Contact Us</Link>
             </div>
 
