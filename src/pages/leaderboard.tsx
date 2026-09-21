@@ -25,14 +25,18 @@ export async function getStaticProps() {
 export default function Leaderboard({ initialRankings }: { initialRankings: any[] }) {
   const [search, setSearch] = useState('');
   const [schoolFilter, setSchoolFilter] = useState('All');
+  const [genderFilter, setGenderFilter] = useState('All');
   
   const rankings = useMemo(() => {
     return initialRankings.filter(s => {
       const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
       const matchesSchool = schoolFilter === 'All' || s.school?.name === schoolFilter;
-      return matchesSearch && matchesSchool;
+      const matchesGender = genderFilter === 'All' 
+        || (genderFilter === 'Men' && s.gender?.toUpperCase() === 'MALE')
+        || (genderFilter === 'Women' && s.gender?.toUpperCase() === 'FEMALE');
+      return matchesSearch && matchesSchool && matchesGender;
     });
-  }, [initialRankings, search, schoolFilter]);
+  }, [initialRankings, search, schoolFilter, genderFilter]);
 
   const top3 = rankings.slice(0, 3);
   const rest = rankings.slice(3);
@@ -85,15 +89,34 @@ export default function Leaderboard({ initialRankings }: { initialRankings: any[
           {/* FILTERS */}
           <Reveal delay={0.6} className="w-full mb-12">
             <div className="flex flex-col md:flex-row justify-between items-center bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-2xl p-4 gap-4">
-              <div className="relative w-full md:w-96">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">search</span>
-                <input
-                  type="text"
-                  placeholder="SEARCH ATHLETE..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-full py-3 pl-12 pr-6 text-sm font-sans uppercase text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50 transition-colors"
-                />
+              
+              <div className="flex flex-col md:flex-row gap-4 w-full">
+                <div className="relative w-full md:w-80 shrink-0">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">search</span>
+                  <input
+                    type="text"
+                    placeholder="SEARCH ATHLETE..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full bg-black/40 border border-white/10 rounded-full py-3 pl-12 pr-6 text-sm font-sans uppercase text-white placeholder-white/30 focus:outline-none focus:border-[#D4AF37]/50 transition-colors"
+                  />
+                </div>
+
+                <div className="flex bg-black/40 border border-white/10 rounded-full p-1 shrink-0">
+                  {['All', 'Men', 'Women'].map((gender) => (
+                    <button
+                      key={gender}
+                      onClick={() => setGenderFilter(gender)}
+                      className={`px-5 py-2 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all ${
+                        genderFilter === gender
+                          ? 'bg-white/10 text-white'
+                          : 'text-white/40 hover:text-white/70'
+                      }`}
+                    >
+                      {gender}
+                    </button>
+                  ))}
+                </div>
               </div>
               
             <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">

@@ -50,13 +50,19 @@ export async function getServerSideProps({ params }: any) {
     0
   );
 
-  // Top athlete
-  const topAthlete = school.students
-    .map((s) => ({
-      ...s,
-      totalPoints: s.pointEntries.reduce((sum, pe) => sum + pe.points, 0),
-    }))
-    .sort((a, b) => b.totalPoints - a.totalPoints)[0];
+  // Top athletes (bifurcated by gender)
+  const allSchoolAthletes = school.students.map((s) => ({
+    ...s,
+    totalPoints: s.pointEntries.reduce((sum, pe) => sum + pe.points, 0),
+  }));
+
+  const topMaleAthlete = allSchoolAthletes
+    .filter(s => s.gender?.toUpperCase() === 'MALE')
+    .sort((a, b) => b.totalPoints - a.totalPoints)[0] || null;
+
+  const topFemaleAthlete = allSchoolAthletes
+    .filter(s => s.gender?.toUpperCase() === 'FEMALE')
+    .sort((a, b) => b.totalPoints - a.totalPoints)[0] || null;
 
   // Strongest sports
   const sportStats: Record<string, number> = {};
@@ -90,11 +96,18 @@ export async function getServerSideProps({ params }: any) {
           0
         ),
         departmentCount: school.departments.length,
-        topAthlete: topAthlete
+        topMaleAthlete: topMaleAthlete
           ? {
-              name: topAthlete.name,
-              photoUrl: topAthlete.photoUrl,
-              totalPoints: topAthlete.totalPoints,
+              name: topMaleAthlete.name,
+              photoUrl: topMaleAthlete.photoUrl,
+              totalPoints: topMaleAthlete.totalPoints,
+            }
+          : null,
+        topFemaleAthlete: topFemaleAthlete
+          ? {
+              name: topFemaleAthlete.name,
+              photoUrl: topFemaleAthlete.photoUrl,
+              totalPoints: topFemaleAthlete.totalPoints,
             }
           : null,
         strongestSports,
@@ -209,46 +222,71 @@ export default function SchoolProfile({ school, stats, schoolRank }: SchoolProfi
 
           {/* Top Athlete & Strongest Sports */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-            {/* Top Athlete */}
+            {/* Top Athletes */}
             <Reveal>
-              <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm">
-                <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest">
-                  Top Athlete
+              <div className="rounded-2xl border border-white/10 bg-[#111]/60 p-8 backdrop-blur-sm h-full flex flex-col justify-center">
+                <h3 className="font-display text-sm font-bold uppercase text-white/40 mb-6 tracking-widest text-center">
+                  Leading Athletes
                 </h3>
-                {stats.topAthlete ? (
-                  <div className="flex items-center gap-6">
-                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border border-white/10">
-                      {stats.topAthlete.photoUrl ? (
-                        <img
-                          src={stats.topAthlete.photoUrl}
-                          alt={stats.topAthlete.name}
-                          className="h-full w-full object-cover"
-                        />
+                
+                <div className="grid grid-cols-2 gap-8">
+                  {/* Top Male */}
+                  <div className="flex flex-col items-center text-center">
+                    <p className="font-sans text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] mb-3">Sportsman</p>
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border border-white/10 mb-3">
+                      {stats.topMaleAthlete ? (
+                        stats.topMaleAthlete.photoUrl ? (
+                          <img src={stats.topMaleAthlete.photoUrl} alt={stats.topMaleAthlete.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#333] to-[#111]">
+                            <span className="font-display text-2xl font-bold text-white/30">
+                              {stats.topMaleAthlete.name.split(" ").map((n: string) => n[0]).join("")}
+                            </span>
+                          </div>
+                        )
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#333] to-[#111]">
-                          <span className="font-display text-2xl font-bold text-white/30">
-                            {stats.topAthlete.name
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("")}
-                          </span>
-                        </div>
+                        <div className="flex h-full w-full items-center justify-center bg-[#111]"><span className="text-2xl opacity-20">?</span></div>
                       )}
                     </div>
-                    <div>
-                      <h4 className="font-display text-2xl font-black uppercase text-white">
-                        {stats.topAthlete.name}
-                      </h4>
-                      <p className="font-sans text-sm text-white/50">
-                        {stats.topAthlete.totalPoints} points
-                      </p>
-                    </div>
+                    {stats.topMaleAthlete ? (
+                      <>
+                        <h4 className="font-display text-lg font-black uppercase text-white leading-tight">{stats.topMaleAthlete.name}</h4>
+                        <p className="font-sans text-xs text-white/50 mt-1">{stats.topMaleAthlete.totalPoints} pts</p>
+                      </>
+                    ) : (
+                      <p className="font-sans text-xs text-white/40 mt-1">N/A</p>
+                    )}
                   </div>
-                ) : (
-                  <p className="font-sans text-sm text-white/40">
-                    No athlete data available.
-                  </p>
-                )}
+
+                  {/* Top Female */}
+                  <div className="flex flex-col items-center text-center">
+                    <p className="font-sans text-[10px] font-bold uppercase tracking-widest text-[#8B5CF6] mb-3">Sportswoman</p>
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border border-white/10 mb-3">
+                      {stats.topFemaleAthlete ? (
+                        stats.topFemaleAthlete.photoUrl ? (
+                          <img src={stats.topFemaleAthlete.photoUrl} alt={stats.topFemaleAthlete.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#333] to-[#111]">
+                            <span className="font-display text-2xl font-bold text-white/30">
+                              {stats.topFemaleAthlete.name.split(" ").map((n: string) => n[0]).join("")}
+                            </span>
+                          </div>
+                        )
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-[#111]"><span className="text-2xl opacity-20">?</span></div>
+                      )}
+                    </div>
+                    {stats.topFemaleAthlete ? (
+                      <>
+                        <h4 className="font-display text-lg font-black uppercase text-white leading-tight">{stats.topFemaleAthlete.name}</h4>
+                        <p className="font-sans text-xs text-white/50 mt-1">{stats.topFemaleAthlete.totalPoints} pts</p>
+                      </>
+                    ) : (
+                      <p className="font-sans text-xs text-white/40 mt-1">N/A</p>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </Reveal>
 
