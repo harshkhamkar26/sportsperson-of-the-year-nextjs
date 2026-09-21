@@ -35,6 +35,7 @@ interface Athlete {
   rollNumber: string;
   className: string;
   house: string | null;
+  school?: { name: string; code: string; color: string | null } | null;
   photoUrl: string | null;
   gender: string | null;
   totalPoints: number;
