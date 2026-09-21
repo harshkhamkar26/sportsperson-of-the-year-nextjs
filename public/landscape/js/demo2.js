@@ -122,7 +122,7 @@ function createLandscape(params){
     sunSphere.position.y = 400000 * Math.sin( phi ) * Math.sin( theta );
     sunSphere.position.z = 400000 * Math.sin( phi ) * Math.cos( theta );
     
-    sky.material.uniforms.sunPosition.value.set(0, -100000, 0);
+    sky.material.uniforms.sunPosition.value.copy( sunSphere.position );
   }
 
   function resize(){
