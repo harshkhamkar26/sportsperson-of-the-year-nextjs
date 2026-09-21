@@ -47,13 +47,13 @@ export default function SpotyIntro({ phase, onComplete }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: phase >= 1 ? 1 : 0 }}
             transition={{ duration: 1.2, delay: 0.4 }}
-            className="mb-10 text-center"
+            className="mb-10 z-10 text-center drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)]"
           >
             <p className="font-sans text-[11px] md:text-xs font-medium uppercase text-[#D4AF37] [&]:tracking-[0.45em]">
               UNIVERSAL AI UNIVERSITY
             </p>
             <div className="mx-auto mt-3 h-px w-24 bg-[#D4AF37]/30" />
-            <p className="mt-3 font-sans text-[10px] md:text-[11px] font-medium uppercase tracking-[0.35em] text-white/50">
+            <p className="mt-3 font-sans text-[10px] md:text-[11px] font-medium uppercase tracking-[0.35em] text-white/70">
               Sports Club
             </p>
           </motion.div>
@@ -67,7 +67,7 @@ export default function SpotyIntro({ phase, onComplete }: Props) {
               variants={letterTrack}
               initial="hidden"
               animate="visible"
-              className="font-sans text-xs md:text-sm font-semibold uppercase text-white/70 [&]:tracking-[0.3em]"
+              className="font-sans text-xs md:text-sm z-10 font-bold uppercase text-white/80 [&]:tracking-[0.4em] drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)]"
             >
               Presents
             </motion.p>
@@ -82,15 +82,15 @@ export default function SpotyIntro({ phase, onComplete }: Props) {
               variants={blurReveal}
               initial="hidden"
               animate="visible"
-              className="mt-6 text-center font-display font-black uppercase leading-[0.92]"
+              className="mt-6 z-10 text-center font-display font-black uppercase leading-[0.92] drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)]"
             >
-              <span className="block text-[clamp(2.4rem,9vw,7.5rem)] tracking-tight text-white">
+              <span className="block text-[clamp(2.4rem,9vw,7.5rem)] tracking-tight text-white/95 drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
                 Sports
               </span>
-              <span className="block text-[clamp(1.6rem,6vw,5rem)] tracking-[0.08em] text-[#D4AF37]">
+              <span className="block text-[clamp(1.6rem,6vw,5rem)] tracking-[0.08em] bg-gradient-to-r from-[#D4AF37] to-[#e8cb6d] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">
                 Person
               </span>
-              <span className="block text-[clamp(1.2rem,4.4vw,3.6rem)] tracking-[0.18em] text-white/85">
+              <span className="block text-[clamp(1.2rem,4.4vw,3.6rem)] tracking-[0.18em] text-white/90 drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]">
                 Of the Year
               </span>
             </motion.h1>

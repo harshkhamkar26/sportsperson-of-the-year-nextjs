@@ -22,13 +22,13 @@ interface Props {
 /** Controlled cinematic timeline (ms) for the landing sequence. */
 const TIMELINE = [
   { phase: 1, at: 500 },   // university identity
-  { phase: 2, at: 2000 },  // PRESENTS
-  { phase: 3, at: 2800 },  // SPORTS PERSON OF THE YEAR
-  { phase: 4, at: 4200 },  // year → hand off to award stage
-  { phase: 5, at: 5000 },  // categories begin
-  { phase: 6, at: 6200 },  // athlete images reveal
-  { phase: 7, at: 8000 },  // stats reveal
-  { phase: 8, at: 9000 },  // winner badges activate
+  { phase: 2, at: 2500 },  // PRESENTS
+  { phase: 3, at: 4000 },  // SPORTS PERSON OF THE YEAR
+  { phase: 4, at: 6500 },  // year -> hand off to award stage
+  { phase: 5, at: 9000 },  // categories begin
+  { phase: 6, at: 10500 }, // athlete images reveal
+  { phase: 7, at: 12000 }, // stats reveal
+  { phase: 8, at: 13500 }, // winner badges activate
 ];
 
 export default function SpotyPage({ topAthlete, secondAthlete }: Props) {
