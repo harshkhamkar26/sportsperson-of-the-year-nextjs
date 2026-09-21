@@ -21,7 +21,13 @@ export async function getStaticProps() {
     const maleLeader = maleRankings.length > 0 ? maleRankings[0] : null;
     const femaleLeader = femaleRankings.length > 0 ? femaleRankings[0] : null;
     return {
-      props: { top3: rankings.slice(0, 3), count: rankings.length, maleLeader, femaleLeader, schools: schools.slice(0, 3) },
+      props: JSON.parse(JSON.stringify({ 
+        top3: rankings.slice(0, 3), 
+        count: rankings.length, 
+        maleLeader, 
+        femaleLeader, 
+        schools: schools.slice(0, 3) 
+      })),
       revalidate: 60,
     };
   } catch (error) {

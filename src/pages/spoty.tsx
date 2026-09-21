@@ -12,7 +12,7 @@ export async function getStaticProps() {
     const secondAthlete = femaleRankings[0] || null;
     
     return {
-      props: { topAthlete, secondAthlete },
+      props: JSON.parse(JSON.stringify({ topAthlete, secondAthlete })),
       revalidate: 60,
     };
   } catch (error) {

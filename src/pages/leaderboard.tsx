@@ -10,7 +10,7 @@ export async function getStaticProps() {
   try {
     const rankings = await getRankings();
     return {
-      props: { initialRankings: rankings },
+      props: { initialRankings: JSON.parse(JSON.stringify(rankings)) },
       revalidate: 60,
     };
   } catch (error) {
