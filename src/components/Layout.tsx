@@ -56,69 +56,64 @@ export default function Layout({
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
-      <div className="relative min-h-screen bg-[#070707] font-sans text-white antialiased">
+      <div className="min-h-screen bg-[#050505] text-white selection:bg-[#D4AF37]/30 selection:text-white">
         {/* Header */}
-        <header className={`fixed top-0 z-50 w-full transition-all duration-500 ${onSpoty ? 'bg-transparent' : 'bg-[#070707]/85 backdrop-blur-md border-b border-white/[0.06]'}`}>
+        <header className="fixed top-0 z-50 w-full transition-all duration-500 bg-[#070707]/85 backdrop-blur-md border-b border-white/[0.06]">
           <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 md:px-10">
             <Link href="/" className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <img alt="Universal AI University Sports Club" className="h-10 w-auto object-contain drop-shadow-lg" src="/images/sports-club-logo.png" />
-                {!onSpoty && (
-                  <motion.span
-                    initial={reducedMotion ? undefined : { opacity: 0, letterSpacing: '0.5em' }}
-                    animate={{ opacity: 1, letterSpacing: '0.12em' }}
-                    transition={{ duration: 1 }}
-                    className="hidden font-display text-sm font-semibold uppercase text-white/80 xl:block"
-                  >
-                    Sports Club
-                  </motion.span>
-                )}
+                <motion.span
+                  initial={reducedMotion ? undefined : { opacity: 0, letterSpacing: '0.5em' }}
+                  animate={{ opacity: 1, letterSpacing: '0.12em' }}
+                  transition={{ duration: 1 }}
+                  className="hidden font-display text-sm font-semibold uppercase text-white/80 xl:block"
+                >
+                  Sports Club
+                </motion.span>
               </div>
             </Link>
 
-            {!onSpoty && (
-              <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
-                {NAV_LINKS.map((l) => {
-                  const active = router.pathname === l.href || (l.href === '/sports' && router.pathname.startsWith('/sports'));
-                  return (
-                    <Link
-                      key={l.href}
-                      href={l.href}
-                      className={`font-sans text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
-                        active ? 'text-[#D4AF37]' : 'text-white/55 hover:text-white'
-                      }`}
-                    >
-                      {l.label}
-                    </Link>
-                  );
-                })}
-                <Link href="/" className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:text-white">
-                  Person of the Year
-                </Link>
-              </nav>
-            )}
+            <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+              {NAV_LINKS.map((l) => {
+                const active = router.pathname === l.href || (l.href === '/sports' && router.pathname.startsWith('/sports'));
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className={`font-sans text-xs font-semibold uppercase tracking-[0.18em] transition-colors ${
+                      active ? 'text-[#D4AF37]' : 'text-white/55 hover:text-white'
+                    }`}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
+              <Link href="/" className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-[#D4AF37] transition-colors hover:text-white">
+                Person of the Year
+              </Link>
+            </nav>
 
-            {!onSpoty && (
-              <div className="flex items-center gap-2">
-                <Link href="/live" className="hidden items-center gap-2 rounded-full border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ef4444]/20 xl:flex">
-                  <span className="h-2 w-2 rounded-full bg-[#ef4444]">
-                    <motion.span
-                      className="block h-2 w-2 rounded-full bg-[#ef4444]"
-                      animate={reducedMotion ? undefined : { opacity: [1, 0.2, 1] }}
-                      transition={{ duration: 1.6, repeat: Infinity }}
-                    />
-                  </span>
-                  Live
-                </Link>
-                <Link href="/search" className="flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white" aria-label="Search">
-                  <span className="material-symbols-outlined text-lg">search</span>
-                </Link>
-                <Link href="/admin/login" className="flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white" aria-label="Admin">
-                  <span className="material-symbols-outlined text-lg">account_circle</span>
-                </Link>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Link href="/live" className="hidden items-center gap-2 rounded-full border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ef4444]/20 xl:flex">
+                <span className="h-2 w-2 rounded-full bg-[#ef4444]">
+                  <motion.span
+                    className="block h-2 w-2 rounded-full bg-[#ef4444]"
+                    animate={reducedMotion ? undefined : { opacity: [1, 0.2, 1] }}
+                    transition={{ duration: 1.6, repeat: Infinity }}
+                  />
+                </span>
+                Live
+              </Link>
+              <Link href="/search" className="flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white" aria-label="Search">
+                <span className="material-symbols-outlined text-lg">search</span>
+              </Link>
+              <Link href="/admin/login" className="flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white" aria-label="Admin">
+                <span className="material-symbols-outlined text-lg">account_circle</span>
+              </Link>
+            </div>
           </div>
         </header>
 
