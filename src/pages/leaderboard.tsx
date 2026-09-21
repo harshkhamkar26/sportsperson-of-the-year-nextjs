@@ -24,20 +24,23 @@ export async function getStaticProps() {
 
 export default function Leaderboard({ initialRankings }: { initialRankings: any[] }) {
   const [search, setSearch] = useState('');
-  const [houseFilter, setHouseFilter] = useState('All');
+  const [schoolFilter, setSchoolFilter] = useState('All');
   
   const rankings = useMemo(() => {
     return initialRankings.filter(s => {
       const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
-      const matchesHouse = houseFilter === 'All' || s.house === houseFilter;
-      return matchesSearch && matchesHouse;
+      const matchesSchool = schoolFilter === 'All' || s.school?.name === schoolFilter;
+      return matchesSearch && matchesSchool;
     });
-  }, [initialRankings, search, houseFilter]);
+  }, [initialRankings, search, schoolFilter]);
 
   const top3 = rankings.slice(0, 3);
   const rest = rankings.slice(3);
 
-  const houses = ['All', 'Red', 'Blue', 'Green', 'Yellow'];
+  const schools = useMemo(() => {
+    const uniqueSchools = Array.from(new Set(initialRankings.map(s => s.school?.name).filter(Boolean)));
+    return ['All', ...uniqueSchools.sort()];
+  }, [initialRankings]);
 
   return (
     <Layout title="Leaderboard — The Race For Glory">
@@ -94,17 +97,17 @@ export default function Leaderboard({ initialRankings }: { initialRankings: any[
               </div>
               
             <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
-              {houses.map(h => (
+              {schools.map(s => (
                 <button
-                  key={h}
-                  onClick={() => setHouseFilter(h)}
+                  key={s}
+                  onClick={() => setSchoolFilter(s)}
                   className={`whitespace-nowrap px-6 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-widest transition-all ${
-                    houseFilter === h 
+                    schoolFilter === s 
                       ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]' 
                       : 'bg-black/40 text-white/50 border border-white/10 hover:text-white hover:border-white/30'
                   }`}
                 >
-                  {h} House
+                  {s === 'All' ? 'All Schools' : s.replace('School of ', '')}
                 </button>
               ))}
             </div>
@@ -187,7 +190,7 @@ function PodiumCard({ athlete, rank, delay }: { athlete: any, rank: number, dela
           {athlete.name}
         </h3>
         <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50 mb-4">
-          {athlete.className} • {athlete.house}
+          {athlete.className} • {athlete.school?.name?.replace('School of ', '')}
         </p>
         <div className="w-full grid grid-cols-2 gap-2 border-t border-white/10 pt-4">
           <div>
@@ -257,7 +260,7 @@ function LeaderboardRow({ athlete }: { athlete: any }) {
               {athlete.className}
             </div>
             <div className="font-sans text-[10px] uppercase tracking-widest text-white/40">
-              {athlete.house} House
+              {athlete.school?.name}
             </div>
           </div>
 

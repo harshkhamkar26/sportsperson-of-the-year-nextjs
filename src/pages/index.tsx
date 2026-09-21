@@ -515,7 +515,7 @@ function CategoryLeaderCard({ athlete, gender }: { athlete: any; gender: "MALE" 
               {athlete.name}
             </h3>
             <p className="font-sans text-xs text-white/50 mt-1">
-              {athlete.className} • {athlete.house}
+              {athlete.className} • {athlete.school?.name?.replace('School of ', '')}
             </p>
           </div>
         </div>

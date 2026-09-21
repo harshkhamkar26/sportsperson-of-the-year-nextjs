@@ -156,7 +156,7 @@ export default function AthleteProfile({ analytics, globalRank, categoryRank }: 
                   </span>
                   <span className="w-1 h-1 rounded-full bg-white/30" />
                   <span className="font-sans text-xs text-white/50">
-                    {student.house}
+                    {student.school?.name}
                   </span>
                   <span className="w-1 h-1 rounded-full bg-white/30" />
                   <span className="font-sans text-xs text-white/50">

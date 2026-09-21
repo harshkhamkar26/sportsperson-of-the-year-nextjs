@@ -191,7 +191,7 @@ export default function AthletesPage({ allAthletes, maleAthletes, femaleAthletes
                             {athlete.name}
                           </h3>
                           <p className="mt-1 font-sans text-[10px] uppercase tracking-widest text-[#D4AF37]">
-                            {athlete.house || "UAIU Athlete"}
+                            {athlete.school?.name || "UAIU Athlete"}
                           </p>
                           <p className="mt-1 font-sans text-xs text-white/40">
                             {athlete.className} • {athlete.rollNumber}
