@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import { motion, AnimatePresence } from "framer-motion";
 import CinematicBackground from "@/components/cinema/CinematicBackground";
+import SpotyIntro from "@/components/spoty/SpotyIntro";
 import {
   LIVE_DISPLAY_CONFIG,
   getLiveDisplayData,
@@ -28,7 +29,7 @@ export async function getServerSideProps() {
   }
 }
 
-type Screen = "male" | "female" | "schools";
+type Screen = "intro" | "male" | "female" | "schools";
 
 export default function LiveTVPage({
   initialData,
@@ -41,19 +42,25 @@ export default function LiveTVPage({
   };
 }) {
   const [data, setData] = useState(initialData);
-  const [screen, setScreen] = useState<Screen>("male");
+  const [screen, setScreen] = useState<Screen>("intro");
   const [isDisplayMode, setIsDisplayMode] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [clock, setClock] = useState(new Date());
+  
+  // Phase state for SpotyIntro timeline
+  const [introPhase, setIntroPhase] = useState(0);
+
   const screenIndexRef = useRef(0);
   const rotationRef = useRef<NodeJS.Timeout | null>(null);
   const refreshRef = useRef<NodeJS.Timeout | null>(null);
   const clockRef = useRef<NodeJS.Timeout | null>(null);
 
-  const SCREENS: Screen[] = ["male", "female", "schools"];
+  const SCREENS: Screen[] = ["intro", "male", "female", "schools"];
 
   const getDuration = (s: Screen): number => {
     switch (s) {
+      case "intro":
+        return 7500; // wait 7.5s for intro to finish playing
       case "male":
         return LIVE_DISPLAY_CONFIG.maleDuration;
       case "female":
@@ -86,6 +93,26 @@ export default function LiveTVPage({
       if (clockRef.current) clearInterval(clockRef.current);
     };
   }, []);
+
+  // Intro Timeline
+  useEffect(() => {
+    if (screen !== "intro") return;
+    const TIMELINE = [
+      { phase: 1, at: 500 },   // university identity
+      { phase: 2, at: 2500 },  // PRESENTS
+      { phase: 3, at: 4000 },  // LIVE DISPLAY
+      { phase: 4, at: 6500 },  // year -> finish
+    ];
+    const timers: NodeJS.Timeout[] = [];
+    TIMELINE.forEach((step) => {
+      timers.push(
+        setTimeout(() => {
+          setIntroPhase(step.phase);
+        }, step.at)
+      );
+    });
+    return () => timers.forEach(clearTimeout);
+  }, [screen]);
 
   // Rotation
   useEffect(() => {
@@ -164,57 +191,64 @@ export default function LiveTVPage({
         style={{ cursor: isDisplayMode ? "none" : undefined }}
       >
         {/* Cinematic Background */}
-        <CinematicBackground tone="live" />
+        {screen !== "intro" && <CinematicBackground tone="live" />}
 
-        {/* TV Header Bar — Persistent across all states */}
-        <header
-          className="relative z-20 flex items-center justify-between px-6 md:px-12 py-5"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          {/* Left: Branding */}
-          <div className="flex items-center gap-4">
-            <img
-              src="/images/sports-club-logo.png"
-              alt="UAI Sports Club"
-              className="h-10 w-auto object-contain opacity-80"
-            />
-            <div className="flex flex-col">
-              <span className="font-display text-sm md:text-lg font-black uppercase tracking-[0.15em] text-white">
-                UAIU Sports Club
-              </span>
-              {activeEvent ? (
-                <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
-                  {activeEvent.sport?.name || "Sports"} • Season 2025–26
-                </span>
-              ) : (
-                <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-white/40">
-                  Season 2025–26 • Live Display
-                </span>
-              )}
-            </div>
-          </div>
+        {/* TV Header Bar — Persistent across all states except intro */}
+        <AnimatePresence>
+          {screen !== "intro" && (
+            <motion.header
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="relative z-20 flex items-center justify-between px-6 md:px-12 py-5"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+            >
+              {/* Left: Branding */}
+              <div className="flex items-center gap-4">
+                <img
+                  src="/images/sports-club-logo.png"
+                  alt="UAI Sports Club"
+                  className="h-10 w-auto object-contain opacity-80"
+                />
+                <div className="flex flex-col">
+                  <span className="font-display text-sm md:text-lg font-black uppercase tracking-[0.15em] text-white">
+                    UAIU Sports Club
+                  </span>
+                  {activeEvent ? (
+                    <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
+                      {activeEvent.sport?.name || "Sports"} • Season 2025–26
+                    </span>
+                  ) : (
+                    <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.3em] text-white/40">
+                      Season 2025–26 • Live Display
+                    </span>
+                  )}
+                </div>
+              </div>
 
-          {/* Right: LIVE indicator + Clock */}
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 rounded-full bg-[#ef4444]/15 border border-[#ef4444]/30 px-4 py-1.5">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ef4444] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ef4444]"></span>
-              </span>
-              <span className="font-sans text-xs font-black uppercase tracking-[0.2em] text-[#ef4444]">
-                LIVE
-              </span>
-            </div>
-            <div className="hidden md:flex items-center gap-4">
-              <span className="font-data-tabular text-xl font-bold text-white/80">
-                {clock.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </span>
-              <span className="font-sans text-[10px] uppercase tracking-widest text-white/40">
-                {clock.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}
-              </span>
-            </div>
-          </div>
-        </header>
+              {/* Right: LIVE indicator + Clock */}
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 rounded-full bg-[#ef4444]/15 border border-[#ef4444]/30 px-4 py-1.5">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ef4444] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ef4444]"></span>
+                  </span>
+                  <span className="font-sans text-xs font-black uppercase tracking-[0.2em] text-[#ef4444]">
+                    LIVE
+                  </span>
+                </div>
+                <div className="hidden md:flex items-center gap-4">
+                  <span className="font-data-tabular text-xl font-bold text-white/80">
+                    {clock.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                  <span className="font-sans text-[10px] uppercase tracking-widest text-white/40">
+                    {clock.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}
+                  </span>
+                </div>
+              </div>
+            </motion.header>
+          )}
+        </AnimatePresence>
 
         {/* Event Banner — if real event exists */}
         <AnimatePresence>
@@ -249,27 +283,37 @@ export default function LiveTVPage({
         </AnimatePresence>
 
         {/* MAIN DISPLAY AREA */}
-        <section className="relative z-10 mx-auto max-w-[1600px] px-6 md:px-12 py-10 flex flex-col items-center justify-center min-h-[calc(100vh-260px)]">
-          <AnimatePresence mode="wait">
-            {screen === "male" && (
-              <AthleteScreen
-                key="male"
-                athlete={maleLeader}
-                accent="gold"
-                category="SPORTSMAN"
-              />
-            )}
-            {screen === "female" && (
-              <AthleteScreen
-                key="female"
-                athlete={femaleLeader}
-                accent="ultraviolet"
-                category="SPORTSWOMAN"
-              />
-            )}
-            {screen === "schools" && <SchoolScreen key="schools" schools={schools} />}
-          </AnimatePresence>
-        </section>
+        {screen === "intro" ? (
+          <SpotyIntro 
+            phase={introPhase} 
+            onComplete={() => goToScreen("male")} 
+            title1="LIVE" 
+            title2="DISPLAY" 
+            title3="OS" 
+          />
+        ) : (
+          <section className="relative z-10 mx-auto max-w-[1600px] px-6 md:px-12 py-10 flex flex-col items-center justify-center min-h-[calc(100vh-260px)]">
+            <AnimatePresence mode="wait">
+              {screen === "male" && (
+                <AthleteScreen
+                  key="male"
+                  athlete={maleLeader}
+                  accent="gold"
+                  category="SPORTSMAN"
+                />
+              )}
+              {screen === "female" && (
+                <AthleteScreen
+                  key="female"
+                  athlete={femaleLeader}
+                  accent="ultraviolet"
+                  category="SPORTSWOMAN"
+                />
+              )}
+              {screen === "schools" && <SchoolScreen key="schools" schools={schools} />}
+            </AnimatePresence>
+          </section>
+        )}
 
         {/* Ticker */}
         {LIVE_DISPLAY_CONFIG.tickerEnabled && (

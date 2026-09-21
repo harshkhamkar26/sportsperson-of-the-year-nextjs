@@ -3,17 +3,26 @@ import { beamVariants, letterTrack, blurReveal, introVariants } from './variants
 import InteractiveLandscape from '@/components/InteractiveLandscape';
 
 interface Props {
-  /** 0..9 cinematic phase, advanced by SpotyPage timer */
+  /** 0..9 cinematic phase, advanced by parent timer */
   phase: number;
   onComplete: () => void;
+  title1?: string;
+  title2?: string;
+  title3?: string;
 }
 
 /**
  * SCENE 01 — black screen, university identity
- * SCENE 02 — anticipation beam + "PRESENTS" + "SPORTS PERSON" / "OF THE YEAR"
- * SCENE 03 — "2025 — 26" reveal, then hand-off to the award stage.
+ * SCENE 02 — anticipation beam + "PRESENTS" + configurable titles
+ * SCENE 03 — "2025 — 26" reveal, then hand-off.
  */
-export default function SpotyIntro({ phase, onComplete }: Props) {
+export default function SpotyIntro({ 
+  phase, 
+  onComplete,
+  title1 = "Sports",
+  title2 = "Person",
+  title3 = "Of the Year"
+}: Props) {
   const reducedMotion = useReducedMotion();
 
   return (
@@ -85,13 +94,13 @@ export default function SpotyIntro({ phase, onComplete }: Props) {
               className="mt-6 z-10 text-center font-display font-black uppercase leading-[0.92] drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)]"
             >
               <span className="block text-[clamp(2.4rem,9vw,7.5rem)] tracking-tight text-white/95 drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-                Sports
+                {title1}
               </span>
               <span className="block text-[clamp(1.6rem,6vw,5rem)] tracking-[0.08em] bg-gradient-to-r from-[#D4AF37] to-[#e8cb6d] text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                Person
+                {title2}
               </span>
               <span className="block text-[clamp(1.2rem,4.4vw,3.6rem)] tracking-[0.18em] text-white/90 drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]">
-                Of the Year
+                {title3}
               </span>
             </motion.h1>
           )}
