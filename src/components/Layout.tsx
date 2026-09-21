@@ -101,7 +101,7 @@ export default function Layout({
 
             {!onSpoty && (
               <div className="flex items-center gap-2">
-                <Link href="/broadcast" className="hidden items-center gap-2 rounded-full border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ef4444]/20 xl:flex">
+                <Link href="/live" className="hidden items-center gap-2 rounded-full border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ef4444]/20 xl:flex">
                   <span className="h-2 w-2 rounded-full bg-[#ef4444]">
                     <motion.span
                       className="block h-2 w-2 rounded-full bg-[#ef4444]"
