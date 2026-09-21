@@ -1,5 +1,6 @@
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { beamVariants, letterTrack, blurReveal, introVariants } from './variants';
+import InteractiveLandscape from '@/components/InteractiveLandscape';
 
 interface Props {
   /** 0..9 cinematic phase, advanced by SpotyPage timer */
@@ -22,9 +23,13 @@ export default function SpotyIntro({ phase, onComplete }: Props) {
         variants={introVariants}
         initial="blackScreen"
         exit="exit"
-        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#040404]"
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-transparent"
         aria-label="Sports Person of the Year 2025-26 introduction"
       >
+        <div className="absolute inset-0 z-0">
+          <InteractiveLandscape />
+        </div>
+        
         {/* Scene 02 horizontal beam of light */}
         {phase >= 1 && !reducedMotion && (
           <motion.div
