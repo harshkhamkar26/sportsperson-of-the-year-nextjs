@@ -1,53 +1,22 @@
-import React, { useEffect, useRef } from 'react';
-import Script from 'next/script';
+import React from 'react';
 
 export default function InteractiveLandscape() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // We only want to load the scripts once the component is mounted
   return (
-    <>
-      {/* Shader required by demo1.js */}
-      <script id="custom-vertex" type="x-shader/x-vertex" dangerouslySetInnerHTML={{
-        __html: `
-          uniform vec3 fogColor;
-          uniform float fogNear;
-          uniform float fogFar;
-          varying float fogDepth;
-
-          void main(){
-            vec2 stripPos = vec2( 0.0, vDisplace );
-            vec4 stripColor = texture2D( pallete, stripPos );
-            stripColor *= pow(1.0-vDisplace, 1.0);
-
-            gl_FragColor = stripColor;
-
-            #ifdef USE_FOG
-              float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
-              gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
-            #endif
-          }
-        `
-      }} />
-
-      <canvas ref={canvasRef} className="landscape absolute inset-0 w-full h-full object-cover" />
-
-      {/* Load all required scripts in order */}
-      <Script src="/landscape/js/vendor/three.min.js" strategy="lazyOnload" />
-      <Script src="/landscape/js/vendor/Sky.js" strategy="lazyOnload" />
-      <Script src="/landscape/js/vendor/hammer.min.js" strategy="lazyOnload" />
-      <Script src="/landscape/js/vendor/charming.min.js" strategy="lazyOnload" />
-      <Script src="/landscape/js/vendor/TweenMax.min.js" strategy="lazyOnload" />
-      <Script 
-        src="/landscape/js/demo1.js" 
-        strategy="lazyOnload"
-        onLoad={() => {
-          console.log("Landscape demo loaded!");
+    <div className="absolute inset-0 w-full h-full overflow-hidden">
+      <iframe
+        src="/landscape/background.html"
+        title="3D Interactive Landscape"
+        className="w-full h-full border-0 pointer-events-auto"
+        loading="eager"
+        style={{
+          width: '100%',
+          height: '100%',
+          filter: 'brightness(1.05) contrast(1.15)',
         }}
       />
-      
-      {/* Overlay gradient to blend into the rest of the site */}
+      {/* Subtle blend to seamlessly match the obsidian theme and ensure text contrast */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-transparent to-[#060606]/40 pointer-events-none" />
-    </>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#060606_85%)] pointer-events-none opacity-40" />
+    </div>
   );
 }
